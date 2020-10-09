@@ -1,0 +1,576 @@
+﻿@model Racoonogram.Models.ForStatistics
+
+
+<section>
+    <div class="container">
+        <div class="row">
+            <h2>Моя статистика</h2>
+            <div class="col-sm-4" style="text-align:center">
+                <h4>Популярность</h4>
+                <div id="my_common_buy_like">
+
+                </div>
+
+                <button id="my_common_buy_like_btn" class="btn btn-primary" data-toggle="modal" data-target="#my_common_buy_like_modal" style="width:50%;">Подробнее</button>
+            </div>
+            <div class="col-sm-4" style="text-align:center">
+                <h4 style="text-align:center;margin-bottom:30px">Топ скачавших</h4>
+                <form id="top-downloaders" class="hidden">
+                    @foreach (var item in Model.forStatisticsMy.bestBuyers)
+                    {
+                        <input name="@item.Email" id="@item.Email" value="@item.Sum" class="hidden input-hidden" />
+                    }
+                </form>
+                <div id="my_common_downloaders"></div>
+
+                <button id="my_common_downloaders_btn" class="btn btn-primary" data-toggle="modal" data-target="#my_common_downloaders_modal" style="width:50%;">Подробнее</button>
+
+            </div>
+            <div class="col-sm-4" style="text-align:center">
+                <h4 style="text-align:center">Вы заработали</h4>
+
+                <div id="my_common_money"></div>
+
+                <button id="my_common_money_btn" class="btn btn-primary" data-toggle="modal" data-target="#my_common_money_modal" style="width:50%;">Подробнее</button>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="container">
+        <h2> </h2>
+        <h2>Общий топ</h2>
+        @using (Ajax.BeginForm("BestImCarousel", "Home", new AjaxOptions { UpdateTargetId = "carousel-for-best" }, new { id = "modal-heart-download" }))
+        {
+        <input type="hidden" id="typeHD" name="typeHD" required/>
+        }
+        @using (Ajax.BeginForm("BestAuthor", "Home", new AjaxOptions { UpdateTargetId = "best-auth" }, new { id = "modal-author-form" })) { }
+
+        <div class="row big-row">
+            <div class="col-sm-4">
+                <h4 style="text-align:center"><a href="#" id="modal-heart" data-toggle="modal" data-target="#best_im">Топ-17 фото (<i class="fa fa-heart-o"></i>)</a></h4>
+            </div>
+
+            <div class="col-sm-4">
+                <h4 style="text-align:center"><a href="#" id="modal-download" data-toggle="modal" data-target="#best_im">Топ-17 фото (<i class="fa fa-download"></i>)</a></h4>
+            </div>
+
+            <div class="col-sm-4">
+                <h4 style="text-align:center"><a href="#" id="modal-author" data-toggle="modal" data-target="#best_aut">Топ-17 авторов</a></h4>
+            </div>
+        </div>
+        <div class="row big-row">
+            <div class="col-sm-12">
+                <h4 style="text-align:center">Чаще всего ищут</h4>
+                @foreach (var query in Model.forStatisticsCommon.SearchWords)
+            {
+                <div class="col-md-3 hrefs-query">
+                    <a href="/Home/PhotoGalery?querys=@query.Key">@query.Key</a>
+                </div>
+        }
+            </div>
+        </div>
+        <div class="row big-row">
+
+            <div class="col-sm-12">
+                <h4 style="text-align:center">Всего за неделю авторы заработали</h4>
+                <div id="common_money"></div>
+            </div>
+        </div>
+
+
+
+
+    </div>
+</section>
+
+<style>
+    div.col-sm-4 {
+        padding: 3px;
+    }
+</style>
+
+
+
+
+
+@*-------------------MODALS-----------------*@
+<div class="modal fade" id="my_common_buy_like_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="width:75%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                <h4>Популярность</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    @using (Ajax.BeginForm("StatisticsBuyLike", "Home", new AjaxOptions { UpdateTargetId = "my_common_buy_like_modal_id1" }, new { id = "my_common_buy_like_modal_form" })) { }
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#Download">Скачивания</a></li>
+                        <li><a data-toggle="tab" href="#DownloadsG">Скачивания(группировка)</a></li>
+
+                        <li><a data-toggle="tab" href="#Likes">Лайки</a></li>
+
+                    </ul>
+
+                    <div class="tab-content">
+                        <div id="Download" class="tab-pane fade in active" style="padding:0 30px">
+                            <div class="row">
+                                @using (Ajax.BeginForm("StatisticsBuyLike", "Home", new AjaxOptions { UpdateTargetId = "my_common_buy_like_modal_id1" }, new { id = "modalformorder1", @class = "navbar-form form-search" }))
+    {
+                            <input type="hidden" id="f11" name="orderBy1" value="По дате" />
+                            <input type="hidden" id="f12" name="orderBy2" value="По убыванию" />
+                            <input type="hidden" id="f14" name="count" value="10" />
+
+                            <input type="hidden" name="tab" value="f1" />
+}
+
+                                <p>Упорядочить:</p>
+                                <div class="navbar-left" style="margin-bottom:20px">
+                                    <div class="btn-group">
+                                        <button class="btn btn-default dropdown-toggle" style="padding: 4px 10px;float: left;" type="button" id="selectf11" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            По дате
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu user-serach" aria-labelledby="selectType" style="width: 120px;">
+                                            <li class="selectTypeLeftLi f11" id="d1" style="cursor:pointer">По дате</li>
+                                            <li class="selectTypeLeftLi f11" id="d2" style="cursor:pointer">По стоимости</li>
+                                            <li class="selectTypeLeftLi f11" id="d3" style="cursor:pointer">По размеру</li>
+                                            <li class="selectTypeLeftLi f11" id="d4" style="cursor:pointer">По e-mail</li>
+                                            <li class="selectTypeLeftLi f11" id="d5" style="cursor:pointer">По Id картинки</li>
+
+
+                                        </ul>
+                                    </div>
+
+                                    <div class="btn-group">
+                                        <button class="btn btn-default dropdown-toggle" style="padding: 4px 10px;float: left;" type="button" id="selectf12" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            По убыванию
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu user-serach" aria-labelledby="selectType" style="width: 120px;">
+                                            <li class="selectTypeLeftLi f12" id="o1" style="cursor:pointer">По возрастанию</li>
+                                            <li class="selectTypeLeftLi f12" id="o2" style="cursor:pointer">По убыванию</li>
+                                        </ul>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button type="submit" class="btn btn-default submit-form-order" id="submitBtn1" style="float:left;padding: 4px 10px;font-size:10px;"><i class="fa fa-refresh"></i></button>
+                                    </div>
+                                </div>
+
+                                <div class="navbar-right">
+                                    <span>Показать записей:</span>
+                                    <div class="btn-group">
+                                        <button class="btn btn-default dropdown-toggle" style="padding: 4px 10px;float: right;" type="button" id="selectf14" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            10
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu user-serach" aria-labelledby="selectType" style="width: 120px;">
+                                            <li class="selectTypeLeftLi f14" id="w11" style="cursor:pointer">10</li>
+                                            <li class="selectTypeLeftLi f14" id="w12" style="cursor:pointer">20</li>
+                                            <li class="selectTypeLeftLi f14" id="w13" style="cursor:pointer">50</li>
+                                            <li class="selectTypeLeftLi f14" id="w14" style="cursor:pointer">Все</li>
+
+                                        </ul>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                            <div id="my_common_buy_like_modal_id1">
+
+                            </div>
+
+                        </div>
+
+
+                        <div id="DownloadsG" class="tab-pane fade" style="padding:0 30px">
+                            <div class="row">
+                                @using (Ajax.BeginForm("StatisticsBuyLike", "Home", new AjaxOptions { UpdateTargetId = "my_common_buy_like_modal_id2" }, new { id = "modalformorder2", @class = "navbar-form form-search" }))
+    {
+                            <input type="hidden" id="f21" name="orderBy1" value="По Id картинки" />
+                            <input type="hidden" id="f22" name="orderBy2" value="По возрастанию" />
+                            <input type="hidden" id="f24" name="count" value="10" />
+                            <input type="hidden" name="tab" value="f2" />
+
+}
+
+                                <p>Группировать:</p>
+                                <div class="navbar-left" style="margin-bottom:20px">
+                                    <div class="btn-group">
+                                        <button class="btn btn-default dropdown-toggle" style="padding: 4px 10px;float: left;" type="button" id="selectf21" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            По Id картинки
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu user-serach" aria-labelledby="selectType" style="width: 120px;">
+                                            <li class="selectTypeLeftLi f21" id="d21" style="cursor:pointer">По Id картинки</li>
+                                            @*<li class="selectTypeLeftLi f21" id="d22" style="cursor:pointer">По стоимости</li>*@
+                                            <li class="selectTypeLeftLi f21" id="d23" style="cursor:pointer">По дате</li>
+                                            <li class="selectTypeLeftLi f21" id="d24" style="cursor:pointer">По e-mail</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="btn-group">
+                                        <button class="btn btn-default dropdown-toggle" style="padding: 4px 10px;float: left;" type="button" id="selectf22" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            По возрастанию
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu user-serach" aria-labelledby="selectType" style="width: 120px;">
+                                            <li class="selectTypeLeftLi f22" id="o21" style="cursor:pointer">По возрастанию</li>
+                                            <li class="selectTypeLeftLi f22" id="o22" style="cursor:pointer">По убыванию</li>
+                                        </ul>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button type="submit" class="btn btn-default submit-form-order" id="submitBtn2" style="float:left;padding: 4px 10px;font-size:10px;"><i class="fa fa-refresh"></i></button>
+                                    </div>
+                                </div>
+
+                                <div class="navbar-right">
+                                    <span>Показать записей:</span>
+                                    <div class="btn-group">
+                                        <button class="btn btn-default dropdown-toggle" style="padding: 4px 10px;float: right;" type="button" id="selectf24" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            10
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu user-serach" aria-labelledby="selectType" style="width: 120px;">
+                                            <li class="selectTypeLeftLi f24" id="w21" style="cursor:pointer">10</li>
+                                            <li class="selectTypeLeftLi f24" id="w22" style="cursor:pointer">20</li>
+                                            <li class="selectTypeLeftLi f24" id="w23" style="cursor:pointer">50</li>
+                                            <li class="selectTypeLeftLi f24" id="w24" style="cursor:pointer">Все</li>
+
+                                        </ul>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                            <div id="my_common_buy_like_modal_id2">
+                            </div>
+
+                        </div>
+
+
+
+                        <div id="Likes" class="tab-pane fade" style="padding:0 30px">
+                            <div class="row">
+                                @using (Ajax.BeginForm("StatisticsBuyLike", "Home", new AjaxOptions { UpdateTargetId = "my_common_buy_like_modal_id3" }, new { id = "modalformorder3", @class = "navbar-form form-search" }))
+    {
+                            <input type="hidden" id="f31" name="orderBy1" value="По Id картинки" />
+                            <input type="hidden" id="f32" name="orderBy2" value="По возрастанию" />
+                            <input type="hidden" id="f33" name="orderBy3" value="Нет группировки" />
+                            <input type="hidden" id="f34" name="count" value="10" />
+
+                            <input type="hidden" name="tab" value="f3" />
+
+}
+
+                                <div class="navbar-left" style="margin-bottom:20px">
+                                    <div class="btn-group">
+                                        <button class="btn btn-default dropdown-toggle" style="padding: 4px 10px;float: left;" type="button" id="selectf31" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            По Id картинки
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu user-serach" aria-labelledby="selectType" style="width: 120px;">
+                                            <li class="selectTypeLeftLi f31" id="d31" style="cursor:pointer">По Id картинки</li>
+                                            <li class="selectTypeLeftLi f31" id="d32" style="cursor:pointer">По категории</li>
+                                            <li class="selectTypeLeftLi f31" id="d33" style="cursor:pointer">По кол-ву лайков</li>
+                                            <li class="selectTypeLeftLi f31" id="d34" style="cursor:pointer">По дате посл.лайка</li>
+
+                                        </ul>
+                                    </div>
+
+                                    <div class="btn-group">
+                                        <button class="btn btn-default dropdown-toggle" style="padding: 4px 10px;float: left;" type="button" id="selectf32" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            По возрастанию
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu user-serach" aria-labelledby="selectType" style="width: 120px;">
+                                            <li class="selectTypeLeftLi f32" id="o31" style="cursor:pointer">По возрастанию</li>
+                                            <li class="selectTypeLeftLi f32" id="o32" style="cursor:pointer">По убыванию</li>
+                                        </ul>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button class="btn btn-default dropdown-toggle" style="padding: 4px 10px;float: left;" type="button" id="selectf33" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            Нет группировки
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu user-serach" aria-labelledby="selectType" style="width: 120px;">
+                                            <li class="selectTypeLeftLi f33" id="q31" style="cursor:pointer">Нет группировки</li>
+                                            @*<li class="selectTypeLeftLi f21" id="d22" style="cursor:pointer">По стоимости</li>*@
+                                            <li class="selectTypeLeftLi f33" id="q32" style="cursor:pointer">По ID картинки</li>
+                                            <li class="selectTypeLeftLi f33" id="q33" style="cursor:pointer">По категориям</li>
+
+                                        </ul>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button type="submit" class="btn btn-default submit-form-order" id="submitBtn3" style="float:left;padding: 4px 10px;font-size:10px;"><i class="fa fa-refresh"></i></button>
+                                    </div>
+                                </div>
+
+                                <div class="navbar-right">
+                                    <span>Показать записей:</span>
+                                    <div class="btn-group">
+                                        <button class="btn btn-default dropdown-toggle" style="padding: 4px 10px;float: right;" type="button" id="selectf34" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            10
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu user-serach" aria-labelledby="selectType" style="width: 120px;">
+                                            <li class="selectTypeLeftLi f34" id="w31" style="cursor:pointer">10</li>
+                                            <li class="selectTypeLeftLi f34" id="w32" style="cursor:pointer">20</li>
+                                            <li class="selectTypeLeftLi f34" id="w33" style="cursor:pointer">50</li>
+                                            <li class="selectTypeLeftLi f34" id="w34" style="cursor:pointer">Все</li>
+
+                                        </ul>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                            <div id="my_common_buy_like_modal_id3">
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <div class="modal fade" id="my_common_downloaders_modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document" style="width:75%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                    <h4>Топ скачавших</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        @using (Ajax.BeginForm("StatisticsDownloaders", "Home", new AjaxOptions { UpdateTargetId = "my_common_downloaders_modal_id" }, new { id = "my_common_downloaders_modal_form" })) { }
+                        <div id="my_common_downloaders_modal_id"></div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="modal fade" id="my_common_money_modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document" style="width:75%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                    <h4>Вы заработали</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        @Html.Partial("StatisticsMoney")
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <div class="modal fade" id="best_im" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document" style="width:75%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="carousel-for-best">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="best_aut" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document" style="width:75%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                    <h3>Самые популярные авторы недели - топ 17</h3>
+
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="best-auth">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+    @section Scripts{
+
+
+        @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.js")
+
+        <script src="https://www.google.com/jsapi"></script>
+        <script>
+
+
+            $("li.selectTypeLeftLi").click(function (e) {
+                $("#" + this.classList[1]).val(this.textContent);
+                $("#select" + this.classList[1]).html($(this).html() + " <span class='caret'></span
+            });
+            $(".submit-form-order").click(function (e) {
+                $f = this.id.substr(this.id.length - 1, 1);
+                $("#modalformorder" + $f).submit();
+            });
+        </script>
+
+
+        <script>
+        $("#modal-heart").click(function () {
+            $("#typeHD").val("heart");
+            $("#modal-heart-download").submit();
+        });
+        $("#modal-download").click(function () {
+            $("#typeHD").val("download");
+            $("#modal-heart-download").submit();
+        });
+        $("#modal-author").click(function () {
+            $("#modal-author-form").submit();
+        });
+
+
+
+
+        $("#my_common_buy_like_btn").click(function () {
+        $("#my_common_buy_like_modal_form").submit();
+        });
+        $("#my_common_downloaders_btn").click(function () {
+            $("#my_common_downloaders_modal_form").submit();
+        });
+
+
+
+    google.load("visualization", "1", { packages: ["corechart"] });
+
+    function my_common_buy_like() {
+        var data = google.visualization.arrayToDataTable([
+            ['Действие', 'Количество', { role: 'style' }, { role: 'annotation' }],
+            ['Скачиваний', @Model.forStatisticsMy.CountDownloads, '#3366CC',@Model.forStatisticsMy.CountDownloads],
+            ['Лайков', @Model.forStatisticsMy.CountLikes, '#ff9900',@Model.forStatisticsMy.CountLikes ],
+        ]);
+        var options = {
+            is3D: true,
+            width: '100%',
+            legend: { position: 'none' },
+            fontSize: 13,
+            bar: {groupWidth: "80%"}
+            //pieResidueSliceLabel: 'Остальное'
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('my_common_buy_like'));
+        chart.draw(data, options);
+    }
+    google.setOnLoadCallback(my_common_buy_like);
+
+
+    function my_common_downloaders() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Email');
+        data.addColumn('number', 'Кол-во');
+
+        data.addRows(@Model.forStatisticsMy.bestBuyers.Count());
+        $i = 0;
+        $(".input-hidden").each(function () {
+            data.setValue($i, 0, this.name);
+            data.setValue($i, 1, this.value);
+            $i++;
+        });
+        var options = {
+            is3D: true,
+            width: '100%',
+            pieResidueSliceLabel: 'Остальные'
+        };
+                var chart = new google.visualization.PieChart(document.getElementById('my_common_downloaders'));
+                chart.draw(data, options);
+    }
+    google.setOnLoadCallback(my_common_downloaders);
+
+    //function dfasdfl() {
+    //    var sfl = "[['Email', 'Кол-во'],";
+    //    $(".input-hidden").each(function () {
+    //        sfl += "['" + this.name + "'," + this.value + "],";
+    //    });
+    //    sfl = sfl.slice(0, -1);
+    //    return sfl + "]";
+    //}
+
+
+    function my_common_money() {
+        var data = google.visualization.arrayToDataTable([
+            ['Действие', 'Количество', { role: 'style' }, { role: 'annotation' }],
+            ['Всего', @Model.forStatisticsMy.SumTotal, '#dc3912', @Model.forStatisticsMy.SumTotal + "$"],
+        ]);
+        var options = {
+            is3D: true,
+            width: '100%',
+            legend: { position: 'none' },
+            fontSize: 13,
+            bar: { groupWidth: "80%" }
+            //pieResidueSliceLabel: 'Остальное'
+        };
+        var chart = new google.visualization.ColumnChart(document.getElementById('my_common_money'));
+        chart.draw(data, options);
+    }
+        google.setOnLoadCallback(my_common_money);
+
+
+
+
+
+
+
+
+        function common_money() {
+        var data = google.visualization.arrayToDataTable([
+            ['Действие', 'Количество', { role: 'style' }, { role: 'annotation' }],
+            ['Всего', @Model.forStatisticsCommon.CommonSum, 'green', @Model.forStatisticsCommon.CommonSum + "$"],
+        ]);
+        var options = {
+            is3D: true,
+            width: '100%',
+            legend: { position: 'none' },
+            fontSize: 13,
+            bar: { groupWidth: "80%" }
+            //pieResidueSliceLabel: 'Остальное'
+        };
+            var chart = new google.visualization.ColumnChart(document.getElementById('common_money'));
+        chart.draw(data, options);
+    }
+        google.setOnLoadCallback(common_money);
+        </script>
+
+    }

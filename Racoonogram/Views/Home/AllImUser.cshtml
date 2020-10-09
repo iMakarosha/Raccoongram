@@ -1,0 +1,33 @@
+﻿@using Racoonogram.Models;
+@using System.Linq;
+@using System;
+@using System.Collections.Generic;
+@using System.Web;
+@using System.Web.Mvc;
+@using Racoonogram.Controllers;
+@using System.Data.Entity;
+
+@model IEnumerable<Racoonogram.Models.Image>
+@using Racoonogram.Helpers
+
+
+
+<h2>Работы автора:</h2>
+@foreach (var item in Model)
+{
+    <div class="col-sm-4 img-descr-image">
+        <a href="/Home/ImagePreview/@item.ImageId">
+            <img src="~/Content/Content-image/@item.Url" onerror="this.src='/Content/Images/notFound.jpg'" />
+        </a>
+        <div class="descr-image">
+            <p>
+                <span class="navbar-right"><a href="#" class="aLike" id="@item.ImageId"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
+            </p>
+        </div>
+    </div>
+}
+
+@*<div class="btn-group">
+       @* @Html.PageLinks(Model.PageInfoPag, x => Url.Action("PhotoGalery", new { page = x }))
+    </div>*@
+

@@ -1,0 +1,139 @@
+﻿@using Racoonogram.Models;
+@using System.Linq;
+@using System;
+@using System.Collections.Generic;
+@using System.Web;
+@using System.Web.Mvc;
+@using Racoonogram.Controllers;
+@using System.Data.Entity;
+
+
+@model Racoonogram.Models.PaginationClassForUsers
+
+@using Racoonogram.Helpers
+@{
+    ViewBag.Title = "UserSearch";
+}
+
+<section id="search-section" style="background-image: url('@ViewBag.BackImage')">
+    <div class="container-fluid" style="min-height: 232px;padding: 2% 10%;">
+        <div class="search-form">
+            <h1>Racoonogram - живи ярко, наполняй цветом каждый день</h1>
+
+            @using (Ajax.BeginForm("UserSearchPartial", "Home", new AjaxOptions { UpdateTargetId = "SearchResult" }, new { @class = "navbar-form form-search" }))
+            {
+                <div class="input-group">
+                    <input type="text" id="input-string-query" name="searchstring" class="form-control" style="width:75%; height:40px;border-radius:4px" placeholder="Enter the word">
+                    <input type="submit" id="submit-search" value="" class="btn btn-default selectType" style="width:40px;">
+                    <input type="hidden" id="submit-search-npage" name="page" value="1" />
+                    <input type="hidden" id="submit-order" name="order" value="name" />
+                    <label for="submit-search"><i class="fa fa-search"></i></label>
+                    <div class="dropdown selectType" style="width: 135px;padding: 0 5px;margin-right: 6px;">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="selectType" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i id="selected-i" class="fa fa-user-o"><span style="font-family:Arial, Helvetica, sans-serif"> - name</span> </i>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu user-serach" aria-labelledby="selectType" style="width: 120px;">
+                            <li class="selectTypeLi" id="name"><i class="fa fa-user-o" style="color:#333; cursor:pointer"><span style="font-family:Arial, Helvetica, sans-serif"> - name</span> </i></li>
+                            <li class="selectTypeLi" id="images"><i class="fa fa-picture-o" style="color:#333; cursor:pointer"><span style="font-family:Arial, Helvetica, sans-serif"> - count</span></i></li>
+                            <li class="selectTypeLi" id="follow"><i class="fa fa-heart-o" style="color:#333; cursor:pointer"><span style="font-family:Arial, Helvetica, sans-serif"> - count</span></i></li>
+                        </ul>
+                    </div>
+                </div>
+
+            }
+            @*<div class="examples">
+                    <span class="no-style">for example:</span>
+                    <span class="hrefs-query"><a href="#animals">animals</a></span>
+                    <span class="hrefs-query"><a href="#forest">forest</a></span>
+                    <span class="hrefs-query"><a href="#child">child</a></span>
+                    <span class="hrefs-query"><a href="#rainbod">rainbod</a></span>
+                </div>*@
+        </div>
+    </div>
+    <div class="descr-image-back">
+        <p>
+            @if (ViewBag.BackAuthor != null)
+    {
+        <span>by: <a href="/Home/AuthorProfile/@ViewBag.BackAuthorHref" target="_blank">@ViewBag.BackAuthor - </a></span>
+}
+            <span class="navbar-right">@ViewBag.likes <i class="fa fa-heart-o"></i></span>
+        </p>
+
+    </div>
+</section>
+
+<section id="SearchResult">
+
+    <div class="container">
+        <div class="row">
+            <div>
+
+                <div class="col-sm-10 col-sm-offset-1">
+                    <table style="width:100%">
+                        <tr>
+                            <th width="10%"></th>
+                            <th>Login</th>
+                            <th>Connect</th>
+                            <th width="15%">Publications</th>
+                            <th width="8%">Likes</th>
+                        </tr>
+                        @foreach (var item in Model.userSearches)
+                        {
+
+                            <tr>
+                                <td>
+                                    <a href="/Home/AuthorProfile/@item.Id" target="_blank">
+                                        <img src="@item.UrlLogo" onerror="this.src='/Content/Images/notFound.jpg'" style="object-fit:cover;height:60px;width: 60px;border-radius:30px;margin-right: 20px;" />
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="/Home/AuthorProfile/@item.Id" target="_blank">
+                                        @item.UserName
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="@item.Site" target="_blank">
+                                        @item.SiteShort
+                                    </a>
+                                </td>
+                                <td>
+                                    <span>@item.CountPubl</span>
+                                </td>
+                                <td>
+                                    <span>@item.CountFollow</span>
+                                </td>
+                            </tr>
+
+                        }
+                    </table>
+                </div>
+
+            </div>
+        </div>
+        <div class="row" style="text-align:center;">
+            <div class="btn-group">
+                @Html.PageLinks(Model.PageInfoPag, x => Url.Action("PhotoGalery", new { page = x }))
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+@section Scripts{
+    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.js")
+    @Scripts.Render("~/Scripts/myChangeSelect.js")
+}
+
+
+
+
+
+
+
+
+
+
+

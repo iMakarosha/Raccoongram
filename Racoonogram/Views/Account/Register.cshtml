@@ -1,0 +1,51 @@
+﻿@model Racoonogram.Models.RegisterViewModel
+@{
+    ViewBag.Title = "Регистрация";
+}
+<div class="container" style="margin-top: 30px">
+    <div class="col-sm-6">
+        <img src="~/Content/Images/reg.jpg" />
+    </div>
+    <div class="col-sm-6">
+        @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        <h3 style="text-align: center; margin:30px 0 15px 0">@ViewBag.Title</h3>
+        <hr />
+        @Html.ValidationSummary("", new { @class = "text-danger" })
+        <div class="form-group">
+            @*@Html.LabelFor(m => m.Email, new { @class = "col-md-2 control-label" })*@
+            <div class="col-md-12">
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "E-mail, например Racoon284@mail.ru" })
+            </div>
+        </div>
+        <div class="form-group">
+            @*@Html.LabelFor(m => m.UserName, new { @class = "col-md-2 control-label" })*@
+            <div class="col-md-12">
+                @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", placeholder = "Логин, например Ivan-Racoon38" })
+            </div>
+        </div>
+        <div class="form-group">
+            @*@Html.LabelFor(m => m.Password, new { @class = "col-md-2 control-label" })*@
+            <div class="col-md-12">
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Пароль" })
+            </div>
+        </div>
+        <div class="form-group">
+            @*@Html.LabelFor(m => m.ConfirmPassword, new { @class = "col-md-2 control-label" })*@
+            <div class="col-md-12">
+                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", placeholder = "Еще раз пароль" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-8">
+                <input type="submit" class="btn btn-default" value="Зарегистрироваться" style="width:100%"/>
+            </div>
+        </div>
+}
+    </div>
+    
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

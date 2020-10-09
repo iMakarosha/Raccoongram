@@ -1,0 +1,57 @@
+﻿@using Racoonogram.Helpers
+
+
+@model Racoonogram.Models.PaginationClassForUsers
+
+<div class="container">
+    <div class="row">
+        <div>
+
+            <div class="col-sm-10 col-sm-offset-1">
+                <table style="width:100%">
+                    <tr>
+                        <th width="10%"></th>
+                        <th>Login</th>
+                        <th>Connect</th>
+                        <th width="15%">Publications</th>
+                        <th width="8%">Likes</th>
+                    </tr>
+                    @foreach (var item in Model.userSearches)
+    {
+
+                    <tr>
+                        <td>
+                            <a href="/Home/AuthorProfile/@item.Id" target="_blank">
+                                <img src="@item.UrlLogo" onerror="this.src='/Content/Images/notFound.jpg'" style=" object-fit:cover;height:60px;width: 60px;border-radius:30px;margin-right: 20px;" />
+                            </a>
+                        </td>
+                            <td>
+                                <a href="/Home/AuthorProfile/@item.Id" target="_blank">
+                                    @item.UserName
+                                </a>
+                            </td>
+                            <td>
+                                <a href="@item.Site" target="_blank">
+                                    @item.SiteShort
+                                </a>
+                            </td>
+                            <td>
+                                <span>@item.CountPubl</span>
+                            </td>
+                            <td>
+                                <span>@item.CountFollow</span>
+                            </td>
+                    </tr>
+
+}
+                </table>
+            </div>
+
+        </div>
+    </div>
+    <div class="row" style="text-align:center;">
+        <div class="btn-group">
+            @Html.PageLinks(Model.PageInfoPag, x => Url.Action("PhotoGalery", new { page = x }))
+        </div>
+    </div>
+</div>

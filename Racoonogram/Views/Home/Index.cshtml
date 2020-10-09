@@ -1,0 +1,199 @@
+﻿@using Racoonogram.Models;
+@using System.Linq;
+@using System;
+@using System.Collections.Generic;
+@using System.Web;
+@using System.Web.Mvc;
+@using Racoonogram.Controllers;
+@using System.Data.Entity;
+@model IEnumerable<Racoonogram.Models.Querys>
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<section id="search-section" style="background-image: url('@ViewBag.BackImage')">
+    <div class="container-fluid" style="@ViewBag.MinHeight">
+        <div class="search-form">
+            <h1>Racoonogram - живи ярко, наполняй цветом каждый день</h1>
+            @*@using (Ajax.BeginForm("ImageSearch", "Home", new AjaxOptions { UpdateTargetId = "SearchResult" }, new { @class = "navbar-form form-search" }))*@
+
+            @using (Html.BeginForm("PhotoGalery", "Home", FormMethod.Get, new { @class = "navbar-form form-search" }))
+            {
+                <div class="input-group">
+                    <input type="text" id="input-string-query" name="querys" class="form-control" style="width:80%; height:40px;border-radius:4px" placeholder="Enter the word">
+                    <input type="submit" id="submit-search" value="" class="btn btn-default selectType" style="width:40px;">
+                    <input type="hidden" id="submit-search-npage" name="page" value="1" />
+                    <label for="submit-search"><i class="fa fa-search"></i></label>
+                    <div class="dropdown selectType">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="selectType" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i id="selected-i" class="fa fa-camera-retro"></i>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="selectType">
+                            <li class="selectTypeLi"><i class="fa fa-camera-retro" style="color:#000"></i></li>
+                            <li class="selectTypeLi"><i class="fa fa-picture-o" style="color:#000"></i></li>
+                            <li class="selectTypeLi"><i class="fa fa-video-camera" style="color:#000"></i></li>
+                        </ul>
+                    </div>
+                </div>
+
+            }
+            <div class="examples">
+                <span class="no-style">for example:</span>
+                <span class="hrefs-query"><a href="/Home/PhotoGalery?querys=animals">animals</a></span>
+                <span class="hrefs-query"><a href="/Home/PhotoGalery?querys=forest">forest</a></span>
+                <span class="hrefs-query"><a href="/Home/PhotoGalery?querys=child">child</a></span>
+                <span class="hrefs-query"><a href="/Home/PhotoGalery?querys=rainbod">rainbod</a></span>
+            </div>
+        </div>
+    </div>
+    <div class="descr-image-back">
+        <p>
+            @if (ViewBag.BackAuthor != null)
+            {
+                <span>by: <a href="/Home/AuthorProfile/@ViewBag.BackAuthorHref" target="_blank">@ViewBag.BackAuthor - </a></span>
+            }
+            <span class="navbar-right">@ViewBag.likes <i class="fa fa-heart-o"></i></span>
+        </p>
+
+    </div>
+</section>
+
+
+<section id="SearchResult"></section>
+
+<section>
+    <div class="container">
+        <div class="row">
+            <h2>Новинки недели</h2>
+
+            @foreach (Image d in ViewBag.Images)
+            {
+                <div class="col-sm-4 img-descr-image">
+                    <a href="/Home/ImagePreview/@d.ImageId" target="_blank">
+                        <img src="~/Content/Content-image/@d.Url" onerror="this.src='/Content/Images/notFound.jpg'" />
+                    </a>
+                    <div class="descr-image">
+                        <p>
+                            @if (d.User != null)
+                            {
+                                <span>by: <a href="/Home/AuthorProfile/@d.User.Id" target="_blank">@d.User.UserName</a></span>
+                            }
+                            <span class="navbar-right"><a href="#" class="aLike" id="@d.ImageId"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
+                        </p>
+
+                    </div>
+                </div>
+
+            }
+
+        </div>
+    </div>
+</section>
+
+<section id="other-category">
+    <div class="container">
+        <h2>Искать стало легче</h2>
+        <table border="0">
+            <tr>
+                <td class="col-sm-4 td-no-padding">
+                    <div class="img-descr-image">
+                        <img src="~/Content/Content-image/44.jpg" onerror="this.src='/Content/Images/notFound.jpg'" />
+                        <div class="descr-image-fixed">
+                            <p>
+                                @Html.ActionLink("Animals", "PhotoGalery", "Home", new { category = "animals" }, null)
+                                <span class="navbar-right"><a href="#" class="aLike" id="44"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="col-sm-4 td-no-padding">
+                    <div class="img-descr-image">
+                        <img src="~/Content/Content-image/19.jpg" onerror="this.src='/Content/Images/notFound.jpg'" />
+                        <div class="descr-image-fixed">
+                            <p>
+                                @Html.ActionLink("Nature", "PhotoGalery", "Home", new { category = "nature" }, null)
+                                <span class="navbar-right"><a href="#" class="aLike" id="19"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td rowspan="2" class="col-sm-4 td-no-padding">
+                    <div class="img-descr-image">
+                        <img src="~/Content/Content-image/71.jpg" onerror="this.src='/Content/Images/notFound.jpg'" style="height: 498px;" />
+                        <div class="descr-image-fixed">
+                            <p>
+                                @Html.ActionLink("Fashion", "PhotoGalery", "Home", new { category = "fashion" }, null)
+                                <span class="navbar-right"><a href="#" class="aLike" id="71"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-sm-4 td-no-padding">
+                    <div class="img-descr-image">
+                        <img src="~/Content/Content-image/27.jpg" onerror="this.src='/Content/Images/notFound.jpg'" />
+                        <div class="descr-image-fixed">
+                            <p>
+                                @Html.ActionLink("Portrait", "PhotoGalery", "Home", new { category = "portrait" }, null)
+                                <span class="navbar-right"><a href="#" class="aLike" id="27"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+                <td class="col-sm-4 td-no-padding">
+                    <div class="img-descr-image">
+                        <img src="~/Content/Content-image/35.jpg" onerror="this.src='/Content/Images/notFound.jpg'" />
+                        <div class="descr-image-fixed">
+                            <p>
+                                @Html.ActionLink("Sity", "PhotoGalery", "Home", new { category = "sity" }, null)
+                                <span class="navbar-right"><a href="#" class="aLike" id="35"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
+                            </p>
+
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</section>
+
+<section id="query-list">
+    <div class="container">
+        <h2>Также часто ищут</h2>
+
+        @foreach (var query in Model)
+        {
+            <div class="col-md-3 hrefs-query">
+                <a href="/Home/PhotoGalery?querys=@query.QueryStr">@query.QueryStr</a>
+            </div>
+        }
+    </div>
+</section>
+
+<section id="advertising">
+    <div class="container">
+        <div class="col-sm-3">
+
+        </div>
+        <div class="col-sm-3">
+
+        </div>
+        <div class="col-sm-3">
+
+        </div>
+    </div>
+</section>
+
+
+@section Scripts{
+    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.js");
+    @Scripts.Render("~/Scripts/like.js")
+}

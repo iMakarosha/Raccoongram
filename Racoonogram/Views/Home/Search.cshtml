@@ -1,0 +1,46 @@
+﻿<section id="search-section" style="background-image: url('@ViewBag.BackImage')">
+    <div class="container-fluid" style="@ViewBag.MinHeight">
+        <div class="search-form">
+            <h1>Racoonogram - живи ярко, наполняй цветом каждый день</h1>
+            @using (Html.BeginForm("ImageSearch", "Home", new { @class = "navbar-form form-search" }))
+            {
+                <div class="input-group">
+                    <input type="text" id="input-string-query" name="keywords" class="form-control" style="width:80%; height:40px;border-radius:4px" placeholder="Enter the word">
+                    <input type="submit" id="submit-search" value="" class="btn btn-default selectType" style="width:40px;">
+                    <input type="hidden" id="submit-search-npage" name="page" value="1" />
+                    <label for="submit-search"><i class="fa fa-search"></i></label>
+                    <div class="dropdown selectType">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="selectType" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i id="selected-i" class="fa fa-camera-retro"></i>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="selectType">
+                            <li class="selectTypeLi"><i class="fa fa-camera-retro" style="color:#000"></i></li>
+                            <li class="selectTypeLi"><i class="fa fa-picture-o" style="color:#000"></i></li>
+                            <li class="selectTypeLi"><i class="fa fa-video-camera" style="color:#000"></i></li>
+                        </ul>
+                    </div>
+                </div>
+
+            }
+            <div class="examples">
+                <span class="no-style">for example:</span>
+                <span class="hrefs-query"><a href="#animals">animals</a></span>
+                <span class="hrefs-query"><a href="#forest">forest</a></span>
+                <span class="hrefs-query"><a href="#child">child</a></span>
+                <span class="hrefs-query"><a href="#rainbod">rainbod</a></span>
+            </div>
+        </div>
+    </div>
+    <div class="descr-image-back">
+        <p>
+            @if (ViewBag.BackAuthor != null)
+            {
+                <span>by: <a href="/Home/AuthorProfile/@ViewBag.BackAuthorHref" target="_blank">@ViewBag.BackAuthor - </a></span>
+            }
+            <span class="navbar-right">@ViewBag.likes <i class="fa fa-heart-o"></i></span>
+        </p>
+
+    </div>
+</section>
+

@@ -1,0 +1,33 @@
+﻿@model Racoonogram.Models.StatisticsDownloaders
+
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#order1">Скачивания</a></li>
+    <li><a data-toggle="tab" href="#order2">По количеству</a></li>
+    <li><a data-toggle="tab" href="#order3">По сумме</a></li>
+</ul>
+
+<div class="tab-content">
+    <div id="order1" class="tab-pane fade in active" style="padding:0 30px">
+        <h3>По порядку</h3>
+        <table>
+            <tr><th>Email</th><th width="15%">CountD</th><th width="15%">Sum</th></tr>
+            @foreach (var item in Model.bestBuyers)
+            {
+                <tr>
+                    <td width="70%">@item.Email</td>
+                    <td width="15%">@item.CountD</td>
+                    <td width="15%">@item.Sum</td>
+                </tr>
+            }
+        </table>
+    </div>
+    <div id="order2" class="tab-pane fade">
+        <h3>По количеству</h3>
+        <p>Здесь будет идентичная таблица для лайков</p>
+    </div>
+    <div id="order3" class="tab-pane fade">
+        <h3>По сумме</h3>
+        <p>Здесь будет идентичная таблица для лайков</p>
+    </div>
+</div>
+

@@ -1,0 +1,102 @@
+﻿@model Racoonogram.Models.UserAccountEditor
+
+@{
+    ViewBag.Title = "ChangeProfile";
+}
+@*@Html.EditorForModel(Model)*@
+<section>
+    <div class="container">
+        <div class="row">
+            <h2>Редактор аккаунта</h2>
+            @using (Html.BeginForm("ChangeProfile", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="col-sm-4 col-sm-offset-1">
+                    <img src="@ViewBag.Logo" onerror="this.src='/Content/User-logo/raccoon.jpg'" alt="logo" id="logo-img" onload="this.height = this.width;" style="object-fit:cover;border-radius:50%;border:1px solid #333;padding: 3px;" />
+                    <div style="text-align:center;margin-top: 20px"><input type="file" name="logo_file" id="logo_file" /></div>
+                    @Html.EditorFor(model=>model.logo_file, new { htmlAttributes = new { @class = "hidden", style = "display:none" } })
+                </div>
+                @Html.EditorFor(model => model.Id, new { htmlAttributes = new { @class = "hidden" } })
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <div class="col-sm-2"><label style="float:left">Логин:</label></div>
+                        <div class="col-sm-10">
+
+                            @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.UserName)
+                        </div>
+                    </div>
+                    <div class="form-group">
+
+                        <div class="col-sm-2"><label style="float:left">E-mail:</label></div>
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Email)
+                        </div>
+                    </div>
+                    <div class="form-group">
+
+                        <div class="col-sm-2"><label style="float:left">Телефон:</label></div>
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.PhoneNumber, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+
+                        <div class="col-sm-2"><label style="float:left">Статус:</label></div>
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.Status, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+
+                        <div class="col-sm-2"><label style="float:left">Ссылка:</label></div>
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.Site, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+
+                        <div class="col-sm-2"><label style="float:left">О себе:</label></div>
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.Additionally, new { htmlAttributes = new { @class = "form-control"} })
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <input type="submit" value="Сохранить изменения" class="btn btn-default" />
+                        </div>
+                    </div>
+
+                </div>
+            }
+        </div>
+
+    </div>
+</section>
+<style>
+    .editor-label{
+        display:none;
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+@section Scripts{
+    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.js");
+    @Scripts.Render("~/Scripts/myLoadIm.js");
+}
+
+

@@ -1,0 +1,211 @@
+﻿@model Racoonogram.Models.Image
+
+
+<div class="container">
+    <input type="button" onclick="history.back();" value="Назад" />
+
+    <h4>Image</h4>
+    <hr />
+    <div class="row">
+
+        <div class="col-sm-6">
+            <img src="~/Content/Content-image/@Model.Url" onerror="this.src='/Content/Images/notFound.jpg'" />
+        </div>
+        <div class="col-sm-6">
+
+            <dl class="dl-horizontal">
+
+                @if (Model.ApplicationUserId != null)
+                {
+                    <dt>
+                        Правообладатель:
+                    </dt>
+
+                    <dd>
+                        <a href="/Home/AuthorProfile/@Model.User.Id">
+                            @Html.DisplayFor(model => model.User.UserName)
+                        </a>
+                    </dd>
+                }
+
+                <dt>
+                    Дата загрузки
+                </dt>
+
+                <dd>
+                    @Html.DisplayFor(model => model.Date)
+                </dd>
+
+                <br />
+
+
+                <dt>
+                    @Html.DisplayNameFor(model => model.Price)
+                </dt>
+
+                <dd>
+                    @Html.DisplayFor(model => model.Price)
+                </dd>
+
+                <dt>
+                    @Html.DisplayNameFor(model => model.Category)
+                </dt>
+
+                <dd>
+                    @Html.DisplayFor(model => model.Category)
+                </dd>
+
+                <dt>
+                    @Html.DisplayNameFor(model => model.KeyWords)
+                </dt>
+
+                <dd>
+                    @*@Html.DisplayFor(model => model.KeyWords)*@
+                    @foreach(var item in ViewBag.keywords)
+                    {
+                        <a href="/Home/PhotoGalery?querys=@item">@item</a>
+                    }
+                </dd>
+
+
+
+                <dt>
+                    @Html.DisplayNameFor(model => model.Description)
+                </dt>
+
+                <dd>
+                    @Html.DisplayFor(model => model.Description)
+                </dd>
+
+
+            </dl>
+            <div style="text-align:center; margin-top:30px">
+                <button id="@Model.ImageId" class="btn btn-primary" data-toggle="modal" data-target="#buyImage">Купить</button>
+            </div>
+
+        </div>
+        <p>
+        </p>
+    </div>
+
+    <h3 style="text-align:center;margin-top:80px">Похожие изображения</h3>
+    <div class="row" id="imagesLikeThis">
+
+    </div>
+
+    @using (Ajax.BeginForm("LikeThisImage", "Home", new AjaxOptions { UpdateTargetId = "imagesLikeThis" }, new { id = "partForm" }))
+    {
+        <input type="hidden" id="imneed" name="imneed" value="@Model.Category" />
+        <input type="hidden" id="idi" name="idi" value="@Model.ImageId" />
+    }
+</div>
+
+
+<div class="modal fade" id="buyImage" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document" style="width:75%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                <h3>Buy image</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <img src="~/Content/Content-image/@Model.Url" />
+                    </div>
+                    <div class="col-sm-6">
+                        @{string name = ViewBag.NameController; using (Ajax.BeginForm("ImageBuy", "Home", new AjaxOptions { UpdateTargetId = "orderResult" }, new { id = "partForm" }))
+
+                            {
+                                <div id="orderResult" style="display:none;"></div>
+                                @Html.EditorFor(model => model.ImageId, new { htmlAttributes = new { @class = "hidden" } })
+                                @Html.EditorFor(model => model.ApplicationUserId, new { htmlAttributes = new { @class = "hidden" } })
+                                @Html.LabelFor(model => model.Price)
+                                <label>: </label>
+                                @Html.DisplayFor(model => model.Price)
+                                <div class="form-group">
+                                    <p>Введите свой E-mail</p>
+                                    @if (User.Identity.IsAuthenticated)
+                                    {
+                                        <input type="email" id="email" name="email" class="form-control" placeholder="my.email.49@mail.ru" value="@ViewBag.Email" />
+                                    }
+                                    else
+                                    {
+                                        <input type="email" id="email" name="email" class="form-control" placeholder="my.email.49@mail.ru" />
+                                    }
+                                </div>
+                                <div class="form-group">
+                                    <p>Выберите ширину изображения:</p>
+                                    <div class="radio">
+                                        <label><input type="radio" name="optradio" value="1920px">1920px</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label><input type="radio" name="optradio" value="1280px">1280px</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label><input type="radio" name="optradio" value="1024px">1024px</label>
+                                    </div>
+                                    @*<div class="radio disabled">
+                                            <label><input type="radio" name="optradio" value="600px" disabled>600px</label>
+                                        </div>*@
+                                </div>
+                                if (ViewBag.NameController== "ImageBuy")
+                                {
+                                    <p>where is yandex.form</p>
+                                }
+
+                                <input type="submit" id="download" name="download" class="form-control" />
+                            } }
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<a href="#" id="getfile" class="hidden"></a>
+@*<a href="/Home/GetFile?ImageId=@Model.ImageId" id="getfile" class="hidden"></a>*@
+@*@Html.ActionLink("getfile", "GetFile", "Home", new { ImageId = Model.ImageId}, new { id= "getfile"})*@
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryval")
+@section Scripts{
+    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.js")
+    @Scripts.Render("~/Scripts/GetImagesLikeThis.js")
+    <script>
+
+    $(document).ready(function (e) {
+
+        jQuery("#orderResult").bind('DOMSubtreeModified', function () { // отслеживаем изменение содержимого блока 2
+            console.log(parseInt(document.getElementById("orderResult").innerHTML));
+            if (parseInt(document.getElementById("orderResult").innerHTML) > 0) {
+                $varr = document.getElementById("orderResult").innerHTML;
+                //alert($varr);
+                //$s = $("#getfile").attr("href");
+                $("#getfile").attr("href", "/Home/GetFile?ImageId=@Model.ImageId" + "&size=" + document.getElementById("orderResult").innerHTML);
+                //alert($("#getfile").attr("href"));
+                $("#getfile").click();
+                //alert("Изображение загружено. Если в загрузках его нет, измените настройки браузера.");
+                $("#buyImage").modal('hide')
+                @*$.ajax({
+                    type: "POST",
+                    url: '/Home/GetFile',
+                    contentType: false,
+                    processData: false,
+                    data: {'ImageId':@Model.ImageId},
+                    success: function (result) {
+                        location.reload();
+                    },
+                    error: function (xhr, status, p3) {
+                    }
+                });*@
+            }
+        });
+    });
+
+    </script>
+}
+
+
+

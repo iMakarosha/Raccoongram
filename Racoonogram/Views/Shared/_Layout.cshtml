@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title – приложение ASP.NET</title>
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/fonts/font-awesome/css/font-awesome.min.css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top" style="border-bottom: 1px solid #fff;">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <div id="logo" class="navbar-brand">
+                    <img alt="Brand" src='~/Content/Images/logo.jpg' />
+                    @Html.ActionLink("Raccoonogram", "Index", "Home")
+                </div>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Фотогалерея", "PhotoGalery", "Home")</li>
+                    <li>@Html.ActionLink("Авторы", "UserSearch", "Home")</li>
+                    <li>@Html.ActionLink("О фотобанке", "About", "Home")</li>
+                </ul>
+                @Html.Partial("_LoginPartial")
+            </div>
+        </div>
+    </div>
+    @RenderBody()
+    <hr />
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4">
+                    <h4>Навигация</h4>
+                    <ul>
+                        <li>@Html.ActionLink("Raccoonogram", "Index", "Home")</li>
+                        <li>@Html.ActionLink("Фотогалерея", "PhotoGalery", "Home")</li>
+                        <li>@Html.ActionLink("Авторы", "UserSearch", "Home")</li>
+                        <li>@Html.ActionLink("Контакт", "Contact", "Home")</li>
+                    </ul>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <p>&copy; 2017 - @DateTime.Now.Year – "Racoonogram", BabaskinaI ^-^</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("Styles", required: false)
+
+    @RenderSection("scripts", required: false)
+    
+</body>
+</html>

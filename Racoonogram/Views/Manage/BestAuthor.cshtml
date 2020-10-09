@@ -1,0 +1,47 @@
+﻿@model Racoonogram.Models.BestAuthors
+
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#Likes">По лайкам</a></li>
+    <li><a data-toggle="tab" href="#Download">По скачиваниям</a></li>
+</ul>
+
+<div class="tab-content">
+    <div id="Likes" class="tab-pane fade in active" style="padding:0 30px">
+        <div class="row">
+            <table>
+                <tr><th style="width: 67px;"></th><th style="width:35%">Автор</th><th>Работ всего:</th><th>Работ <br />за неделю:</th><th>Продаж <br />за неделю:</th><th>Лайков <br />за неделю:</th></tr>
+                @foreach (var item in Model.bestUsersLike)
+            {
+                <tr>
+                    <td style="padding: 3px 20px 3px 6px;"><img src="@item.UrlLogo" height="40" style="object-fit:cover;border-radius:20px" /></td>
+                    <td><a href="/Home/AuthorProfile/@item.Id" target="_blank">@item.UserName</a></td>
+                    <td>@item.Photos</td>
+                    <td>@item.PhotosAtWeek</td>
+                    <td>@item.OrdersAtWeek</td>
+                    <td><b>@item.LikesAtWeek</b></td>
+                </tr>
+        }
+            </table>
+        </div>
+
+    </div>
+    <div id="Download" class="tab-pane fade" style="padding:0 30px">
+        <div class="row">
+
+            <table>
+                <tr><th style="width: 67px;"></th><th style="width:35%">Автор</th><th>Работ всего:</th><th>Работ <br />за неделю:</th><th>Лайков <br />за неделю:</th><th>Продаж<br />за неделю:</th></tr>
+                @foreach (var item in Model.bestUsersDownload)
+    {
+                <tr>
+                    <td style="padding: 3px 20px 3px 6px;"><img src="@item.UrlLogo" height="40" style="object-fit:cover;border-radius:20px" /></td>
+                    <td><a href="/Home/AuthorProfile/@item.Id" target="_blank">@item.UserName</a></td>
+                    <td>@item.Photos</td>
+                    <td>@item.PhotosAtWeek</td>
+                    <td>@item.LikesAtWeek</td>
+                    <td><b>@item.OrdersAtWeek</b></td>
+                </tr>
+}
+            </table>
+        </div>
+    </div>
+</div>

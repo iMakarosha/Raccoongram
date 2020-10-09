@@ -1,0 +1,15 @@
+﻿@model IEnumerable<Racoonogram.Models.Image>
+
+@foreach (var item in Model)
+{
+    <div class="col-sm-4 img-descr-image">
+        <a href="/Home/ImagePreview/@item.ImageId">
+            <img src="~/Content/Content-image/@item.Url" onerror="this.src='/Content/Images/notFound.jpg'" />
+        </a>
+        <div class="descr-image">
+            <p>
+                <span class="navbar-right"><a href="#"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
+            </p>
+        </div>
+    </div>
+}

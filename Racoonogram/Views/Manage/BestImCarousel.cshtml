@@ -1,0 +1,55 @@
+﻿@model IEnumerable<Racoonogram.Models.BestImagesL>
+
+
+    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+        <!-- Indicators -->
+        @*<ol class="carousel-indicators">
+                <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+                <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+                <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+            </ol>*@
+
+        <!-- Wrapper for slides -->
+        <div class="carousel-inner" role="listbox">
+            <div class="item active">
+                    <img src="/Content/Images/bestLike.jpg" id="firstImC1" alt="image">
+                <div class="carousel-caption">
+                    <h1 style="color:#fff;">Лучшие изображения последних 7 дней по версии пользователей @ViewBag.gif</h1>
+                    @*<p>...</p>*@
+                </div>
+            </div>
+            @foreach (var item in Model)
+    {
+        <div class="item">
+            <a href="/Home/ImagePreview/@item.Id" target="_blank">
+                <img src="@item.Url" alt="image" style="height: 100%; object-fit:cover">
+            </a>
+            <div class="carousel-caption">
+                <h4>Категория: @item.Category</h4>
+                <p>Автор: <a href="/Home/AuthorProfile/@item.UserId" target="_blank">@item.UserName</a></p>
+                <p>@ViewBag.LO: @item.LikesCount</p>
+            </div>
+        </div>
+}
+        </div>
+        <script>
+            $("#best_im").on("shown.bs.modal", function () {
+                {
+                $height = document.getElementById("firstImC1").height;
+                var array = document.getElementsByClassName("item");
+                $(array).each(function (e) {
+                    $(this).css('height', $height);
+                })
+            }
+            });
+        </script>
+        <!-- Controls -->
+        <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
+    </div>

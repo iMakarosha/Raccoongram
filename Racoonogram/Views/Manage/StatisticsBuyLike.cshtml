@@ -1,0 +1,64 @@
+﻿@model IEnumerable<Racoonogram.Models.StatisticsBuyLike>
+
+
+<table>
+    @switch (ViewBag.count)
+    {
+        case 5:
+            <tr><th style="width: 90px;"></th><th>@ViewBag.th2</th><th>@ViewBag.th3</th><th>@ViewBag.th4</th><th>@ViewBag.th5</th></tr>
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td width="15%" style="padding: 3px 10px 3px 0;"><a href="/Home/ImagePreview/@item.Id" target="_blank"><img src="@item.Url" height="40" style="object-fit:cover" /></a></td>
+                    <td>@item.Var1</td>
+                    <td>@item.Var2</td>
+                    <td>@item.Var3</td>
+                    <td>@item.Date</td>
+                </tr>
+            }
+            break;
+        case 4:
+            <tr><th style="width: 90px;"></th><th>@ViewBag.th2</th><th>@ViewBag.th3</th><th>@ViewBag.th4</th></tr>
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td width="15%" style="padding: 3px 10px 3px 0;"><a href="/Home/ImagePreview/@item.Id" target="_blank"><img src="@item.Url" height="40" style="object-fit:cover" /></a></td>
+                    <td>@item.Var1</td>
+                    <td>@item.Var2</td>
+                    <td>@item.Date</td>
+                </tr>
+            }
+            break;
+        case 3:
+
+            <tr>@*<th style="width: 90px;"></th>*@<th>@ViewBag.th5</th><th>@ViewBag.th2</th><th>@ViewBag.th3</th><th>@ViewBag.th4</th></tr>
+            foreach (var item in Model)
+            {
+            <tr>
+                <td width="15%" style="padding: 3px 10px 3px 0;"><a href="/Home/ImagePreview/@item.integer" target="_blank"><img src="@item.Url" height="40" style="object-fit:cover" /></a></td>
+
+                <td>@item.Var1</td>
+                <td>@item.Var2</td>
+                <td>@item.Var3</td>
+
+            </tr>
+            }
+            break;
+        case 2:
+            <tr><th style="width: 90px;"></th><th>@ViewBag.th2</th><th>@ViewBag.th3</th></tr>
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td width="15%" style="padding: 3px 10px 3px 0;"><a href="/Home/ImagePreview/@item.Id" target="_blank"><img src="@item.Url" height="40" style="object-fit:cover" /></a></td>
+                    <td>@item.Var1</td>
+                    <td>@item.Date</td>
+                </tr>
+            }
+            break;
+        default:
+            break;
+    }
+</table>
+
+
+
