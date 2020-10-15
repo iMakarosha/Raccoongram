@@ -21,8 +21,6 @@ namespace Racoonogram.Models
         public DbSet<ShowQueryImages> showQueryImages { get; set; }
         public DbSet<ImageUnload> imageUnloads { get; set; }
 
-
-
         public DbSet<ForStatistics> forStatistics { get; set; }
         public DbSet<StatisticsBuyLike> statisticsBuyLikes { get; set; }
         public DbSet<StatisticsDownloaders> statisticsDownloaders { get; set; }
@@ -34,8 +32,6 @@ namespace Racoonogram.Models
         public DbSet<UserAndImagesAndPlans> userAndImagesAndPlans { get; set; }
 
     }
-    //[MetadataType(typeof(ApplicationUser))]
-    //[Table("AspNetUsers")]
     public class UserAccountEditor
     {
         [HiddenInput(DisplayValue = false)]
@@ -59,7 +55,6 @@ namespace Racoonogram.Models
         [UIHint("MultilineText")]
         [Display(Name = "О себе:")]
         public string Additionally { get; set; }
-//[HiddenInput(DisplayValue = false)]
         public HttpPostedFileBase logo_file { get; set; }
 
     }
@@ -129,20 +124,6 @@ namespace Racoonogram.Models
         public double MoneyBalance { get; set; }
         public DateTime LastDate { get; set; }
     }
-
-
-
-    //todo
-    //public class UserEditor
-    //{
-    //    public int Id { get; set; }
-    //    public string Email { get; set; }
-    //    public string UserName { get; set; }
-    //    public string Status { get; set; }
-    //    public string Additionally { get; set; }
-    //    public string Site { get; set; }
-    //    public string AvatarUrl { get; set; }
-    //}
 
     public class Querys
     {
@@ -227,12 +208,6 @@ namespace Racoonogram.Models
         public DateTime Date { get; set; }
     }
 
-
-
-
-
-
-
     /*для статистики*/
 
     public class ForStatistics
@@ -270,8 +245,6 @@ namespace Racoonogram.Models
 
     public class StatisticsBuyLike
     {
-        //public IEnumerable<Order> Orders { get; set; }
-        //public IEnumerable<Like> Likes { get; set; }
         public int Id { get; set; }
         public double integer { get; set; }
         public string Url { get; set; }
@@ -284,7 +257,6 @@ namespace Racoonogram.Models
     public class StatisticsDownloaders
     {
         public List<BestBuyers> bestBuyers { get; set; }
-        //что-то еще
     }
 
     /*для лучших изображений*/
