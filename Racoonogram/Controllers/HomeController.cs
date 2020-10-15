@@ -7,11 +7,15 @@ using System.Web.Mvc;
 using Racoonogram.Models;
 
 
+using System.Net;
+using System.Net.Mail;
+
+using System.Security.Cryptography;
+
 
 namespace Racoonogram.Controllers
 {
     /**/
-    [RequireHttps]
     public class HomeController : Controller
     {
         ApplicationDbContext db = new ApplicationDbContext();
@@ -25,37 +29,51 @@ namespace Racoonogram.Controllers
                 i.Url = i.ImageId + "_sm.jpg";
             }
             ViewBag.Images = l;
-            IQueryable<Querys> q = from f in db.QueryHistories
+            IQueryable<Querys> q = (from f in db.QueryHistories
                                    group f by f.QuerySting into j
-                                   select new Querys() {  QueryStr = j.Key };
+                                   select new Querys() {  QueryStr = j.Key }).Take(30);
 
-            ViewBag.MinHeight = "min-height: 600px;padding: 15%;";
+            ViewBag.MinHeight = "padding: 15%;";
             return View(q);
         }
 
         private void GenereteRandomBack()
         {
             Random r = new Random();
-            int rand; Image backI;
-            do
+            int rand; /*Image backI;*/
+            string[] arrayImages = new string[3];
+            int[] l = new int[3] { 0, 0, 0 };
+            var bestImages = (from f in db.Likes
+                              group f by f.ImageId into j
+                              select new
+                              {
+                                  name = j.Key,
+                                  count = db.Likes.Where(i => i.ImageId == j.Key).Select(i => i.LikeId).Count()
+                              }).OrderByDescending(j => j.count).Take(15).ToList();
+            for (int j = 0; j < 3; j++)
             {
-                rand = r.Next(1, db.Images.Select(i => i.ImageId).Count());
-                backI = db.Images.Select(i => i).Where(i => i.ImageId == rand).FirstOrDefault();
-            }
-            while (backI == null);
-
-            if (System.IO.File.Exists(Server.MapPath("~/Content/Content-image/" + backI.ImageId + ".jpg")))
+            gotome: rand = r.Next(0, bestImages.Count()-1);
+            rand = Convert.ToInt32(bestImages[rand].name);
+            if (System.IO.File.Exists(Server.MapPath("~/Content/Content-image/" + rand + ".jpg")))
             {
-                ViewBag.BackImage = "/Content/Content-image/" + backI.ImageId + ".jpg";
+                    if (l[0] != rand && l[1] != rand)
+                    {
+                        arrayImages[j] = "/Content/Content-image/" + rand + ".jpg";
+                        l[j] = rand;
+                    }
+                    else goto gotome;
             }
-            else ViewBag.BackImage = "/Content/Images/help-back.jpg";
-            if (backI.ApplicationUserId != null)
-            {
-                ViewBag.BackAuthor = backI.User.UserName;
-                ViewBag.BackAuthorHref = backI.ApplicationUserId;
-            }
-            ViewBag.likes = db.Likes.Where(i => i.ImageId == backI.ImageId).Select(i => i.LikeId).Count();
+            else arrayImages[j] = "/Content/Images/help-back.jpg";
             
+                //if (backI.ApplicationUserId != null)
+                //{
+                //    ViewBag.BackAuthor = backI.User.UserName;
+                //    ViewBag.BackAuthorHref = backI.ApplicationUserId;
+                //}
+            }
+            ViewBag.BackImage = arrayImages;
+            //ViewBag.likes = db.Likes.Where(i => i.ImageId == 1).Select(i => i.LikeId).Count();
+
         }
         public JsonResult Like(int id)
         {
@@ -66,6 +84,11 @@ namespace Racoonogram.Controllers
                     BuyingDate = DateTime.Now,
                     ImageId = id
                 };
+                if (User.Identity.IsAuthenticated)
+                {
+                    string name = User.Identity.Name;
+                    l.UserId = db.Users.Where(u => u.UserName == name).Select(u=>u.Id).FirstOrDefault();
+                }
                 db.Likes.Add(l);
            
                 db.SaveChanges();
@@ -181,6 +204,19 @@ namespace Racoonogram.Controllers
         public ActionResult UserSearch(int page = 1)
         {
             int pageSize = 24;
+            //var rolee = db.Roles.Where(r=>r.Id=="2").Select(r => r).FirstOrDefault();
+
+            //IEnumerable<UserSearch> users = db.Users.Where(q=>q.Roles.Contains(rolee)).Select(q => new UserSearch
+            //{
+            //    Id = q.Id,
+            //    UserName = q.UserName,
+            //    Site = q.Site,
+            //    CountPubl = q.Images.Select(i => i.ImageId).Count(),
+            //    CountFollow = (from l in db.Likes
+            //                   join i in db.Images on l.ImageId equals i.ImageId
+            //                   where i.ApplicationUserId == q.Id
+            //                   select l.LikeId).Count()
+            //}).OrderByDescending(i => i.UserName).Take(pageSize).ToList();
             IEnumerable<UserSearch> users = db.Users.Select(q => new UserSearch
             {
                 Id = q.Id,
@@ -191,7 +227,8 @@ namespace Racoonogram.Controllers
                                join i in db.Images on l.ImageId equals i.ImageId
                                where i.ApplicationUserId == q.Id
                                select l.LikeId).Count()
-            }).OrderByDescending(i => i.UserName).Take(pageSize).ToList();
+            }).Where(q=>q.CountPubl>0).OrderByDescending(i => i.UserName).Take(pageSize).ToList();
+
 
             if (users.Count() <= 0)
             {
@@ -220,9 +257,9 @@ namespace Racoonogram.Controllers
         {
             if (Site != null)
             {
-                if (Site.Length <= 40)
+                if (Site.Length <= 30)
                     return Site;
-                else return Site.Substring(0, 40) + "...";
+                else return Site.Substring(0, 30) + "...";
             }
             return null;
         }
@@ -356,105 +393,50 @@ namespace Racoonogram.Controllers
         [HttpGet]
         public ActionResult ImagePreview(int id)
         {
-            Image image = db.Images.Select(i => i).Where(i => i.ImageId == id).FirstOrDefault();
-            // IEnumerable < Image > image = db.Images.Select(i => i).Where(i => i.ImageId == id).Take(1).ToList();
-            image.Url = image.ImageId + "_sm.jpg";
-            string[] keywords = image.KeyWords.Split(' ');
-            ViewBag.keywords = keywords;
-
-
-            if (image.Price > 0)
-                ViewBag.NameController = "ImageBuy";
-            else ViewBag.NameController = "ImageDownload";
-
-            if (User.Identity.IsAuthenticated) {
-                string s = User.Identity.Name;
-                ViewBag.Email = db.Users.Where(i => i.UserName == s).Select(i => i.Email).FirstOrDefault();
-            }
-            return View(image);
-        }
-        [HttpPost]
-        public JsonResult ImageBuy(string email, string optradio, int ImageId, string ApplicationUserId)
-        {
-            if (email == null || email == "")
-                return Json("<b style='color:red'>Поле Email обязательно для заполнения</b>");
-            if (optradio == null || optradio == "")
-                return Json("<b style='color:red'>Выберите размер загружаемой фотографии</b>");
-            int size = Convert.ToInt32(optradio.Substring(0, optradio.Length - 2));
-            double price = db.Images.Where(i => i.ImageId == ImageId).Select(i => i.Price).First();
-            Order order = new Order
+            try
             {
-                ImageId = ImageId,
-                ApplicationUserId = ApplicationUserId,
-                BuyerEmail = email,
-                Size = size,
-                Price = price,
-                BuyingDate = DateTime.Now
-            };
-            db.Orders.Add(order);
-            db.SaveChanges();
-            //string path = Server.MapPath("/Content/Content-image/" + ImageId + ".jpg");
-            //byte[] mas = System.IO.File.ReadAllBytes(path);
-            //string file_type = "application/jpg";
-            //string file_name = "Raccoonogram_im.jpg";
-            //return File(mas, file_type, file_name);
-            //GetFile(ImageId);
+                Image image = db.Images.Select(i => i).Where(i => i.ImageId == id).FirstOrDefault();
+                // IEnumerable < Image > image = db.Images.Select(i => i).Where(i => i.ImageId == id).Take(1).ToList();
+                image.Url = image.ImageId + "_sm.jpg";
+                string[] keywords = image.KeyWords.Split(' ');
+                ViewBag.keywords = keywords;
+                ViewBag.authorLogo = RenderUserLogo(image.ApplicationUserId, "small");
+                if (image.Price > 0)
+                    ViewBag.NameController = "ImageBuy";
+                else ViewBag.NameController = "ImageDownload";
+                ViewBag.BigUrl = image.ImageId + "_normal.jpg";
+                if (image.Description == "" || image.Description==null) ViewBag.Header = "Image #" + image.ImageId.ToString();
+                else if (image.Description.Length > 45) ViewBag.Header = image.Description.Substring(0, 45) + "...";
+                else ViewBag.Header = image.Description;
 
-            return Json(size);
-        }
-
-        public FileResult GetFile(int ImageId, int size)
-        {
-            string path = Server.MapPath("/Content/Content-image/" + ImageId + ".jpg");
-            System.Drawing.Image imNormal = System.Drawing.Image.FromFile(path);
-
-
-
-
-            System.Drawing.ImageConverter _imageConverter = new System.Drawing.ImageConverter();
-            byte[] mas;
-            if (!(imNormal.Height < size && imNormal.Width < size))
-            {
-                using (imNormal)
+                if (User.Identity.IsAuthenticated)
                 {
-                    Double xRatio = (double)imNormal.Width / size;
-                    Double yRatio = (double)imNormal.Height / size;
-                    Double ratio = Math.Max(xRatio, yRatio);
-
-                    int nnx = (int)Math.Floor(imNormal.Width / ratio);
-                    int nny = (int)Math.Floor(imNormal.Height / ratio);
-                    System.Drawing.Bitmap cpy = new System.Drawing.Bitmap(nnx, nny, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                    using (System.Drawing.Graphics gr = System.Drawing.Graphics.FromImage(cpy))
+                    string s = User.Identity.Name;
+                    var idAndEmail = db.Users.Where(i => i.UserName == s).Select(i => new
                     {
-                        gr.Clear(System.Drawing.Color.Transparent);
-
-                        // This is said to give best quality when resizing images
-                        gr.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-
-                        gr.DrawImage(imNormal,
-                            new System.Drawing.Rectangle(0, 0, nnx, nny),
-                            new System.Drawing.Rectangle(0, 0, imNormal.Width, imNormal.Height),
-                            System.Drawing.GraphicsUnit.Pixel);
+                        email = i.Email,
+                        id = i.Id
+                    }).FirstOrDefault();
+                    ViewBag.Email = idAndEmail.email;
+                    if (image.Price > 0)
+                    {
+                        ViewBag.hasPlan = db.PlanBuyings.Where(p => p.Id_user == idAndEmail.id && (p.ImageBalance > 0 || p.MoneyBalance > image.Price)).Select(p => p.Id).Count();
                     }
-                    mas = (byte[])_imageConverter.ConvertTo(cpy, typeof(byte[]));
-                    //return cpy;
+                    else ViewBag.hasPlan = 1;
                 }
+                return View(image);
             }
-
-            //byte[] xByte = (byte[])_imageConverter.ConvertTo(imNormal, typeof(byte[]));
-            //byte[] mas = System.IO.File.ReadAllBytes(path);
-            else
+            catch(Exception ex)
             {
-                mas = (byte[])_imageConverter.ConvertTo(imNormal, typeof(byte[]));
+                return RedirectToRoute(new
+                {
+                    controller = "Home",
+                    action = "NotFound",
+                    message = "Изображение не найдено"
+                });
             }
-
-
-
-
-            string file_type = "application/jpg";
-            string file_name = "Raccoonogram_im_"+ImageId+"_"+size+".jpg";
-            return File(mas, file_type, file_name);
         }
+        
 
         [HttpPost]
         public JsonResult ImageDownload(string email = "")
@@ -477,29 +459,56 @@ namespace Racoonogram.Controllers
 
 
         [HttpPost]
-        public ActionResult ImageSearch(string keywords, int page = 1, string iscategory="")
+        public ActionResult ImageSearch(string keywords, int page = 1, string iscategory = "", string Colors = null, /*string IsBlack = "false",*/ string Orient = null, string OrderBy="", int Count=12)
         {
             IEnumerable<Image> allimages;
-            int pageSize = 12;
-            if (keywords == "" ||keywords==" ")
-            {
-                return RedirectToRoute(new
-                {
-                    controller = "Home",
-                    action = "NotFound",
-                    message = "Пустая строка запроса"
-                });
-            }
+            int pageSize = Count;
+            //if (keywords == "" ||keywords==" ")
+            //{
+            //    return RedirectToRoute(new
+            //    {
+            //        controller = "Home",
+            //        action = "NotFound",
+            //        message = "Пустая строка запроса"
+            //    });
+            //}
             if (iscategory == "category")
             {
-                allimages = db.Images.Where(i=>i.Category.Contains(keywords)).OrderByDescending(i => i.ImageId).ToList();
+                if (Colors == "IsBlack")
+                {
+                    allimages = db.Images.Where(i => i.Category.Contains(keywords)  && i.Orient.Contains(Orient)&&i.IsBlack==true).OrderByDescending(i => i.ImageId).ToList();
+                }
+                else
+                allimages = db.Images.Where(i=>i.Category.Contains(keywords) && i.Colors.Contains(Colors) && i.Orient.Contains(Orient)).OrderByDescending(i => i.ImageId).ToList();
             }
             else
             {
-               allimages = db.Images.Where(i => i.KeyWords.Contains(keywords)
-                            || i.Category.Contains(keywords)).OrderByDescending(i => i.ImageId).ToList();
+                if (Colors == "IsBlack")
+                {
+                    allimages = db.Images.Where(i => (i.KeyWords.Contains(keywords)
+                                                || i.Category.Contains(keywords)) && i.Orient.Contains(Orient)&&i.IsBlack==true).OrderByDescending(i => i.ImageId).ToList();
+                }
+                else
+                    allimages = db.Images.Where(i => (i.KeyWords.Contains(keywords)
+                            || i.Category.Contains(keywords))&&i.Colors.Contains(Colors)&&i.Orient.Contains(Orient)).OrderByDescending(i => i.ImageId).ToList();
             }
-            IEnumerable<Image> allImagesForPag = allimages.OrderByDescending(i => i.ImageId).Skip((page - 1) * pageSize).Take(pageSize);
+            IEnumerable<Image> allImagesForPag;
+            switch (OrderBy)
+            {
+                case "o2":
+                    allImagesForPag = allimages.OrderBy(i => i.ImageId).Skip((page - 1) * pageSize).Take(pageSize);
+                    break;
+                case "o3":
+                    allImagesForPag = allimages.OrderBy(i => i.Price).Skip((page - 1) * pageSize).Take(pageSize);
+                    break;
+                case "o4":
+                    allImagesForPag = allimages.OrderByDescending(i => i.Price).Skip((page - 1) * pageSize).Take(pageSize);
+                    break;
+                default:
+                    allImagesForPag = allimages.OrderByDescending(i => i.ImageId).Skip((page - 1) * pageSize).Take(pageSize);
+                    break;
+            }
+
             if (allimages.Count() <= 0)
             {
                 return RedirectToRoute(new
@@ -536,14 +545,14 @@ namespace Racoonogram.Controllers
 
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
+            ViewBag.Message = "Your application description page";
 
             return View();
         }
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "Your contact page";
 
             return View();
         }
@@ -551,9 +560,151 @@ namespace Racoonogram.Controllers
 
         public ActionResult Questions()
         {
-            ViewBag.Message = "Questions.";
+            ViewBag.Message = "Questions";
 
             return View();
+        }
+        public ActionResult Agreement()
+        {
+            ViewBag.Message = "Agreement";
+            return View();
+        }
+        public ActionResult License()
+        {
+            ViewBag.Message = "License";
+            return View();
+        }
+        public ActionResult BuyPlan()
+        {
+            ViewBag.Message = "Приобрести план";
+            return View();
+        }
+        [HttpGet]
+        public ActionResult BuyPlanForm(string radio_val = "s1")
+        {
+            return GetPlanPage(radio_val);
+        }
+
+        private ActionResult GetPlanPage(string radio_val)
+        {
+            if (User.Identity.IsAuthenticated && User.IsInRole("user"))
+            {
+                switch (radio_val)
+                {
+                    case "s2":
+                        ViewBag.Price = 25;
+                        break;
+                    case "s3":
+                        ViewBag.Price = 50;
+                        break;
+                    case "p1":
+                        ViewBag.Price = 49;
+                        break;
+                    case "p2":
+                        ViewBag.Price = 99;
+                        break;
+                    case "p3":
+                        ViewBag.Price = 179;
+                        break;
+                    default:
+                        ViewBag.Price = 10;
+                        break;
+                }
+                ViewBag.Message = "Приобрести план";
+                ViewBag.PlanId = radio_val;
+                ViewBag.PlanName = radio_val;
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Register", "Account");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult BuyPlanForm(string planId, int price=10, string login="", string nomerC="", string dataC ="", string radio_val="")
+        {
+
+            if (login == ""||nomerC=="" || dataC=="")
+            {
+                ModelState.AddModelError("login", "Необходимо заполнить все поля!");
+                return GetPlanPage(planId);
+            }
+            else
+            {
+                var userId = db.Users.Where(u => u.UserName == login).Select(u => u.Id).FirstOrDefault();
+                if (userId !=null)
+                {
+                    /*платежная система*/
+                    PlanBuying buying;
+                    if (planId.Contains('s'))
+                    {
+                        buying = db.PlanBuyings.Where(pb => pb.Id_plan.Contains("s") && pb.Id_user == userId).Select(p => p).FirstOrDefault();
+                        if (buying == null)
+                        {
+                            buying = new PlanBuying
+                            {
+                                Id_plan = planId,
+                                Id_user = userId,
+                                MoneyBalance = 0
+                            };
+                        }
+                        else
+                        {
+                            db.PlanBuyings.Remove(buying);
+                            db.SaveChanges();
+
+                        }
+                        buying.MoneyBalance += db.Plans.Where(p => p.Id == planId).Select(p => p.PlanPrice).FirstOrDefault();
+                        buying.BuyingDate = DateTime.Now;
+                        buying.isHide = 0;
+                    }
+                    else
+                    {
+                        buying = new PlanBuying
+                        {
+                            Id_plan = planId,
+                            Id_user = userId,
+                            BuyingDate = DateTime.Now,
+                            isHide = 0
+                        };
+                        buying.ImageBalance = db.Plans.Where(p => p.Id == planId).Select(p => p.ImgCount).FirstOrDefault();
+                    }
+                    db.PlanBuyings.Add(buying);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    ModelState.AddModelError("login", "Введенного Вами логина не существует в базе!");
+                    return GetPlanPage(planId);
+                }
+                return RedirectToAction("Index","Manage");
+            }
+        }
+        public ActionResult GetImg(string Id)
+        {
+            ViewBag.Message = "Приобрести план";
+            var j = db.ImgDownloads.Where(imd => imd.Id == Id).Select(imd => imd).FirstOrDefault();
+            try
+            {
+                if (j.DateLast > DateTime.Now)
+                {
+                    ViewBag.ID = Id + ".jpg";
+                    return View();
+                }
+                else
+                {
+                    ViewBag.ISIMG = "Время действия ссылки истекло! Получите письмо с новой ссылкой в личном кабинете";
+                    ViewBag.ID = "no";
+                    return View();
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ISIMG = "Время действия ссылки истекло! Получите письмо с новой ссылкой в личном кабинете";
+                ViewBag.ID = "no";
+                return View();
+            }
         }
     }
 }

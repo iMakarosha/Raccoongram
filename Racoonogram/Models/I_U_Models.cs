@@ -29,6 +29,10 @@ namespace Racoonogram.Models
         public DbSet<BestImagesL> bestImagesL { get; set; }
         public DbSet<BestAuthors> bestAuthors { get; set; }
 
+
+
+        public DbSet<UserAndImagesAndPlans> userAndImagesAndPlans { get; set; }
+
     }
     //[MetadataType(typeof(ApplicationUser))]
     //[Table("AspNetUsers")]
@@ -75,6 +79,59 @@ namespace Racoonogram.Models
         public int CountPubl { get; set; }
         public int CountFollow { get; set; }
     }
+
+    public class UserAndImagesAndPlans
+    {
+        public string Id { get; set; }
+        public ApplicationUser User { get; set; }
+        public IEnumerable<Buying> buyings { get; set; }
+        public IEnumerable<Buying> buyingsAll { get; set; }
+        public IEnumerable<Liking> likings { get; set; }
+        public IEnumerable<Plans> plans { get; set; }
+        public UserMoney userMoneys { get; set; }
+
+        public IEnumerable<QuerysPopular> querysPopulars { get; set; }
+        public IEnumerable<BestImagesL> ImNews1 { get; set; }
+        public IEnumerable<BestImagesL> ImNews2 { get; set; }
+        public IEnumerable<BestImagesL> ImFree { get; set; }
+        //еще должна быть сумма средств на счету, нет?
+    }
+    public class Buying
+    {
+        public int OrderId { get; set; }
+        public int ImageId { get; set; }
+        public string AuthorId { get; set; }
+        public string AuthorName { get; set; }
+        public double Price { get; set; }
+        public string Size { get; set; }
+        public DateTime OrdDate { get; set; }
+        public string href { get; set; }
+    }
+    public class Liking
+    {
+        public int LikeId { get; set; }//Может, удалить
+        public int ImageId { get; set; }
+        public string Url { get; set; }
+        public DateTime LikeDate { get; set; }//Может, удалить
+    }
+    public class Plans
+    {
+        public int Id { get; set; }
+        public string PlanId { get; set; }
+        public int StartPrice { get; set; }
+        public int StartImageBalance { get; set; }
+        public int ImageBalance { get; set; }
+        public int isHide { get; set; }
+        public DateTime BuyingDate { get; set; }
+    }
+    public class UserMoney
+    {
+        public double MoneyBalance { get; set; }
+        public DateTime LastDate { get; set; }
+    }
+
+
+
     //todo
     //public class UserEditor
     //{
@@ -112,6 +169,8 @@ namespace Racoonogram.Models
         [Display(Name = "Описание")]
         [DataType(DataType.MultilineText)]
         public string Description { get; set; }
+        [Display(Name = "Цвета")]
+        public string Colors { get; set; }
         [Display(Name = "Стоимость")]
         [DataType(DataType.Currency)]
         [Range(typeof(decimal), "0,00", "5,99", ErrorMessage ="Стоимость загружаемой фотографии не должна превышать 6$")]

@@ -1,86 +1,150 @@
 ﻿@model Racoonogram.Models.Image
 
 
-<div class="container">
-    <input type="button" onclick="history.back();" value="Назад" />
+<div class="container" style="padding-top:30px">
+    @*<button class="btn btn-primary" type="button" onclick="history.back();" style="padding:3px 6px 3px 3px"><i class="fa fa-sign-out fa-rotate-180"></i></button>*@
 
-    <h4>Image</h4>
+    <span style="font-size: 21px;">@ViewBag.Header - фотобанк Raccoonogram</span>
     <hr />
     <div class="row">
 
-        <div class="col-sm-6">
+        <div class="col-sm-6" id="img-container">
             <img src="~/Content/Content-image/@Model.Url" onerror="this.src='/Content/Images/notFound.jpg'" />
+            <div style="position:absolute;top: 10px;right: 25px;">
+                <button class="trans-white-button" data-target="#image-prewiew" data-toggle="modal"><i class="fa fa-search-plus"></i></button>
+            </div>
+            <div class="drop-buttons">
+
+                <a href="#" class="aLike" id="@Model.ImageId"><i class="fa fa-heart-o"></i></a>
+                <a href="#shareModal" style="padding-right:9px" data-toggle="modal" data-whatever="@Model.ImageId"><i class="fa fa-share-alt"></i></a>
+            </div>
+
         </div>
-        <div class="col-sm-6">
-
-            <dl class="dl-horizontal">
-
-                @if (Model.ApplicationUserId != null)
-                {
-                    <dt>
-                        Правообладатель:
-                    </dt>
-
-                    <dd>
+        <div class="col-sm-6 image-preview-after-img">
+            <div id="div1">
+                <div style="margin-bottom:10px">
+                    @if (Model.ApplicationUserId != null)
+                    {
+                        <img class="user-small-logo" src="@ViewBag.authorLogo" />
+                        <span>Автор: </span>
                         <a href="/Home/AuthorProfile/@Model.User.Id">
                             @Html.DisplayFor(model => model.User.UserName)
                         </a>
-                    </dd>
-                }
-
-                <dt>
-                    Дата загрузки
-                </dt>
-
-                <dd>
-                    @Html.DisplayFor(model => model.Date)
-                </dd>
-
-                <br />
-
-
-                <dt>
-                    @Html.DisplayNameFor(model => model.Price)
-                </dt>
-
-                <dd>
-                    @Html.DisplayFor(model => model.Price)
-                </dd>
-
-                <dt>
-                    @Html.DisplayNameFor(model => model.Category)
-                </dt>
-
-                <dd>
-                    @Html.DisplayFor(model => model.Category)
-                </dd>
-
-                <dt>
-                    @Html.DisplayNameFor(model => model.KeyWords)
-                </dt>
-
-                <dd>
-                    @*@Html.DisplayFor(model => model.KeyWords)*@
-                    @foreach(var item in ViewBag.keywords)
-                    {
-                        <a href="/Home/PhotoGalery?querys=@item">@item</a>
                     }
-                </dd>
+                </div>
+                <p>
+                    <span>Дата загрузки: </span>
+                    @Model.Date.ToLongDateString()
+                </p>
+                <hr />
+                <p>
+                    <span>Стоимость: </span>
+                    @if (Model.Price > 0)
+                    {
+                        <b>@Html.DisplayFor(model => model.Price)$</b>
+                    }
+                    else
+                    {
+                        <span>Бесплатно</span>
+                    }
+                </p>
+                <p>
+                    <span>Категория: </span>
 
-
-
-                <dt>
-                    @Html.DisplayNameFor(model => model.Description)
-                </dt>
-
-                <dd>
+                    <b><a href="/Home/PhotoGalery?category=@Model.Category">@Model.Category</a></b>
+                </p>
+                <p>
+                    <span>Цвета: </span>
+                    @Html.DisplayFor(model => model.Colors)
+                </p>
+                <p>
+                    <span>Описание: </span>
                     @Html.DisplayFor(model => model.Description)
-                </dd>
+                </p>
+            </div>
 
 
-            </dl>
-            <div style="text-align:center; margin-top:30px">
-                <button id="@Model.ImageId" class="btn btn-primary" data-toggle="modal" data-target="#buyImage">Купить</button>
+
+
+
+            <div id="div2">
+                @if (User.Identity.IsAuthenticated && User.IsInRole("user") && ViewBag.hasPlan>0)
+                {
+                    <button id="@Model.ImageId" class="btn btn-primary" data-toggle="modal" data-target="#buyImage">Приобрести</button>
+                }
+                else
+                {
+                    <button id="showLeftModal" class="btn btn-primary active">Приобрести</button>
+                    <div id="LeftModal" style="z-index:30;width:100%;height:100%;background-color: rgba(0,0,0,.2);position: fixed;display:none;top:  0;right:  0;">
+                        <div id="LeftModal-right" class="box" style="padding:2%;right: 0; top: 50px; bottom: 0;max-width: 400px;width:0; height: auto;overflow-y: auto; position: fixed;background-color:#fff">
+                            <div id="sidemenu">
+                                <div style="text-align:right;">
+                                    <button id="hideModal" style="background: transparent;border: none;box-shadow: none;"><i class="fa fa-close"></i></button>
+                                </div>
+                                <div>
+                                    <h3>Готовы скачивать?</h3>
+                                    <p>Выберите план, оплатите и начните скачивать уже сейчас</p>
+                                    <br />
+                                    <br />
+                                    <h4>Планы</h4>
+                                    @using (Html.BeginForm("BuyPlanForm", "Home", FormMethod.Post))
+                                    {
+                                        @Html.ValidationSummary("", new { @class = "text-danger" })
+                    
+                                        <input type="hidden" value="10" name="price" id="price"/>
+                                        <input type="hidden" value="s1" name="planId" id="planId" />
+
+                                        <div>
+                                            <input checked type="radio" name="radio_val"value="plan1" id="plan1" onclick="f1();"/>
+                                            <label for="plan1">Пополнить счет - 10$</label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="radio_val"value="plan2" id="plan2" onclick="f2();" />
+                                            <label for="plan2">Пакет скачиваний - 10 фото (49$)</label>
+                                        </div>
+                                        <a href="/Home/BuyPlan" target="_blank">Узнать больше о планах >></a>
+                                        <br />
+                                        <br />
+                                        if (User.IsInRole("user") && User.Identity.IsAuthenticated)
+                                        {
+                                        <h4>Введите Ваш логин</h4>
+                                        <p><input type="text" class="form-control" placeholder="myLoginName" name="login" value="@User.Identity.Name" /></p>
+                                        }
+                                        else
+                                        {
+                                            <p><input type="text" class="form-control" placeholder="myLoginName" name="login" value="@User.Identity.Name" /></p>
+                                        }
+                                        <p style="font-size:11px">Еще не зарегистрированы? <a href="/Account/Register" target="_blank">Создать аккаунт</a></p>
+                                        <br />
+                                        <h4>Платежные реквизиты</h4>
+                                        <p style="font-size:11px">Номер кредитной карты</p>
+                                        <input type="text" class="form-control" name="nomerC" />
+                                        <p style="font-size:11px">Действительна до</p>
+                                        <input type="text" class="form-control" name="dataC"/>
+                                        <br /><br />
+                                        <div style="text-align:center">
+                                            <input type="submit" class="btn btn-primary" name="name" value="Обработать заказ" />
+                                        </div>
+                                        <br />
+                                        <p>Цены указаны в долларах США</p>
+                                <script>
+                                    function f1() {
+                                        document.getElementById("planId").value = "s1";
+                                        document.getElementById("price").value = parseInt(10);
+                                    };
+                                    function f2() {
+                                        document.getElementById("planId").value = "p1";
+                                        document.getElementById("price").value = parseInt(49);
+                                    };
+                                </script>
+
+                                    }
+                                   
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
 
         </div>
@@ -88,9 +152,26 @@
         </p>
     </div>
 
-    <h3 style="text-align:center;margin-top:80px">Похожие изображения</h3>
+    <h3 style="text-align:center;margin-top:80px">Ключевые слова</h3>
+    <div class="row href-keys">
+        @foreach (var item in ViewBag.keywords)
+        {
+            <label>
+                <a href="/Home/PhotoGalery?querys=@item">@item</a>
+            </label>
+        }
+    </div>
+
+
+
+    <h3 style="text-align:center;margin-top:50px">Похожие изображения</h3>
     <div class="row" id="imagesLikeThis">
 
+    </div>
+
+    <h3 style="text-align:center;margin-top:50px">Информация об использовании</h3>
+    <div class="row">
+        <p>Фотографию "@Model.Description" можно использовать в личных и коммерческих целях согласно условий купленной/приобретенной лицензии. Изображение доступно для скачивания в высоком качестве с разрешением до 1920рх.</p>
     </div>
 
     @using (Ajax.BeginForm("LikeThisImage", "Home", new AjaxOptions { UpdateTargetId = "imagesLikeThis" }, new { id = "partForm" }))
@@ -100,14 +181,24 @@
     }
 </div>
 
+<div class="modal fade" id="image-prewiew" tabindex="-2" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <button type="button" class="trans-white-button" style="position:absolute;top: 10px;right: 10px" data-dismiss="modal" aria-label="Close"><i class="fa fa-close"></i></button>
+            <img src="~/Content/Content-image/@ViewBag.BigUrl" onerror="this.src='/Content/Images/notFound.jpg'" />
+        </div>
+    </div>
+</div>
+
+
 
 <div class="modal fade" id="buyImage" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document" style="width:75%">
+    <div class="modal-dialog modal-80-100" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 
-                <h3>Buy image</h3>
+                <h3>Приобрести изображение</h3>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -115,10 +206,10 @@
                         <img src="~/Content/Content-image/@Model.Url" />
                     </div>
                     <div class="col-sm-6">
-                        @{string name = ViewBag.NameController; using (Ajax.BeginForm("ImageBuy", "Home", new AjaxOptions { UpdateTargetId = "orderResult" }, new { id = "partForm" }))
+                        @{string name = ViewBag.NameController; using (Ajax.BeginForm("ImageBuy", "Manage", null, new AjaxOptions { UpdateTargetId = "orderResult" }, new { id = "partForm1" }))
 
                             {
-                                <div id="orderResult" style="display:none;"></div>
+                                <div id="orderResult"></div>
                                 @Html.EditorFor(model => model.ImageId, new { htmlAttributes = new { @class = "hidden" } })
                                 @Html.EditorFor(model => model.ApplicationUserId, new { htmlAttributes = new { @class = "hidden" } })
                                 @Html.LabelFor(model => model.Price)
@@ -150,12 +241,11 @@
                                             <label><input type="radio" name="optradio" value="600px" disabled>600px</label>
                                         </div>*@
                                 </div>
-                                if (ViewBag.NameController== "ImageBuy")
+                                if (ViewBag.NameController == "ImageBuy")
                                 {
-                                    <p>where is yandex.form</p>
+                                    @*<p>where is yandex.form</p>*@
                                 }
-
-                                <input type="submit" id="download" name="download" class="form-control" />
+                                <input type="submit" id="download" name="download" class="form-control" value="Получить ссылку" style="width:80%;margin-left:10%"/>
                             } }
 
                     </div>
@@ -173,21 +263,29 @@
 @section Scripts{
     @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.js")
     @Scripts.Render("~/Scripts/GetImagesLikeThis.js")
+    @*@Scripts.Render("~/Scripts/like.js")*@
+
     <script>
 
-    $(document).ready(function (e) {
 
+    $(document).ready(function (e) {
+        
         jQuery("#orderResult").bind('DOMSubtreeModified', function () { // отслеживаем изменение содержимого блока 2
+
+
             console.log(parseInt(document.getElementById("orderResult").innerHTML));
             if (parseInt(document.getElementById("orderResult").innerHTML) > 0) {
                 $varr = document.getElementById("orderResult").innerHTML;
+                document.getElementById("orderResult").innerHTML = "";
                 //alert($varr);
                 //$s = $("#getfile").attr("href");
-                $("#getfile").attr("href", "/Home/GetFile?ImageId=@Model.ImageId" + "&size=" + document.getElementById("orderResult").innerHTML);
-                //alert($("#getfile").attr("href"));
-                $("#getfile").click();
+@*$("#getfile").attr("href", "/Home/GetFile?ImageId=@Model.ImageId" + "&size=" + document.getElementById("orderResult").innerHTML);
+//alert($("#getfile").attr("href"));
+$("#getfile").click();*@
                 //alert("Изображение загружено. Если в загрузках его нет, измените настройки браузера.");
+                alert("Ссылка для скачивания отправлена на указанный E-mail");
                 $("#buyImage").modal('hide')
+                location.reload()
                 @*$.ajax({
                     type: "POST",
                     url: '/Home/GetFile',
@@ -201,7 +299,27 @@
                     }
                 });*@
             }
+            //else alert("Данное изображение удалено с сайта:(");
+            })
+        //});
+
+        $("#showLeftModal").click(function () {
+            //if ($(this).hasClass("active")) {
+            //$("#LeftModal").css("display", "block");
+            $("#LeftModal").animate({ /*"width": "100%", */opacity: "show" });
+            $("#LeftModal-right").animate({ "width": "+=60%", opacity: "show" }, "slow");
+                //$(this).removeClass("active"); return false;
+            //}
+            //else {
+            //    $("#LeftModal").animate({ "width": "-=100%", opacity: "hide" }, "slow");
+            //    $(this).addClass("active"); return false;
+            //}
         });
+        $("#hideModal").click(function () {
+            $("#LeftModal-right").animate({ "width": "-=60%", opacity: "hide" }, "slow");
+            $("#LeftModal").animate({opacity: "hide" })
+            //$(this).addClass("active"); return false;
+        })
     });
 
     </script>

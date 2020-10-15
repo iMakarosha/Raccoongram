@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27428.2043
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Racoonogram", "Racoonogram\Racoonogram.csproj", "{5F466E77-5C68-440B-BDE1-1D527E46FC2C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestProject1", "UnitTestProject1\UnitTestProject1.csproj", "{A313FCF9-A4F0-4866-B4DD-04CDC5389390}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{5F466E77-5C68-440B-BDE1-1D527E46FC2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F466E77-5C68-440B-BDE1-1D527E46FC2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F466E77-5C68-440B-BDE1-1D527E46FC2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A313FCF9-A4F0-4866-B4DD-04CDC5389390}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A313FCF9-A4F0-4866-B4DD-04CDC5389390}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A313FCF9-A4F0-4866-B4DD-04CDC5389390}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A313FCF9-A4F0-4866-B4DD-04CDC5389390}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,13 +11,15 @@
             @using (Html.BeginForm("ChangeProfile", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", role = "form" }))
             {
                 @Html.AntiForgeryToken()
-                <div class="col-sm-4 col-sm-offset-1">
+                <div class="col-xs-1 col-sm-none"></div>
+                <div class="col-sm-4 col-xs-10 ">
                     <img src="@ViewBag.Logo" onerror="this.src='/Content/User-logo/raccoon.jpg'" alt="logo" id="logo-img" onload="this.height = this.width;" style="object-fit:cover;border-radius:50%;border:1px solid #333;padding: 3px;" />
                     <div style="text-align:center;margin-top: 20px"><input type="file" name="logo_file" id="logo_file" /></div>
                     @Html.EditorFor(model=>model.logo_file, new { htmlAttributes = new { @class = "hidden", style = "display:none" } })
                 </div>
+                <div class="row" id="i1"></div>
                 @Html.EditorFor(model => model.Id, new { htmlAttributes = new { @class = "hidden" } })
-                <div class="col-sm-6">
+                <div class="col-sm-7" style="padding-left:50px;padding-right: 5px;">
                     <div class="form-group">
                         <div class="col-sm-2"><label style="float:left">Логин:</label></div>
                         <div class="col-sm-10">
@@ -68,7 +70,7 @@
                     </div>
 
                     <div class="form-group">
-                        <div class="col-md-offset-2 col-md-10">
+                        <div class="col-xs-offset-2 col-xs-10">
                             <input type="submit" value="Сохранить изменения" class="btn btn-default" />
                         </div>
                     </div>

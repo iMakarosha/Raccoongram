@@ -17,6 +17,9 @@ namespace Racoonogram.Migrations
                         KeyWords = c.String(),
                         Price = c.Double(nullable: false),
                         Description = c.String(),
+                        Colors = c.String(),
+                        IsBlack = c.Boolean(nullable: false),
+                        Orient = c.String(),
                         Url = c.String(),
                         Date = c.DateTime(nullable: false),
                     })
@@ -29,6 +32,9 @@ namespace Racoonogram.Migrations
                 c => new
                     {
                         Id = c.String(nullable: false, maxLength: 128),
+                        Status = c.String(),
+                        Additionally = c.String(),
+                        Site = c.String(),
                         Email = c.String(maxLength: 256),
                         EmailConfirmed = c.Boolean(nullable: false),
                         PasswordHash = c.String(),
@@ -40,10 +46,7 @@ namespace Racoonogram.Migrations
                         LockoutEnabled = c.Boolean(nullable: false),
                         AccessFailedCount = c.Int(nullable: false),
                         UserName = c.String(nullable: false, maxLength: 256),
-                        Status = c.String(nullable: true, maxLength: 256),
-                        Additionally= c.String(nullable: true, maxLength: 256),
-                        Site= c.String(nullable: true, maxLength: 256),
-                })
+                    })
                 .PrimaryKey(t => t.Id)
                 .Index(t => t.UserName, unique: true, name: "UserNameIndex");
             
@@ -86,31 +89,40 @@ namespace Racoonogram.Migrations
                 .Index(t => t.RoleId);
             
             CreateTable(
+                "dbo.ImgDownloads",
+                c => new
+                    {
+                        Id = c.String(nullable: false, maxLength: 128),
+                        DateLast = c.DateTime(nullable: false),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
+                "dbo.Likes",
+                c => new
+                    {
+                        LikeId = c.Int(nullable: false, identity: true),
+                        ImageId = c.Int(nullable: false),
+                        UserId = c.String(),
+                        BuyingDate = c.DateTime(nullable: false),
+                    })
+                .PrimaryKey(t => t.LikeId);
+            
+            CreateTable(
                 "dbo.Orders",
                 c => new
                     {
                         OrderId = c.Int(nullable: false, identity: true),
                         ImageId = c.Int(nullable: false),
-                        BuyerEmail = c.String(),
                         ApplicationUserId = c.String(),
+                        BuyerEmail = c.String(),
                         Price = c.Double(nullable: false),
                         Size = c.Int(nullable: false),
-                    BuyingDate = c.DateTime(nullable: false),
+                        IsHide = c.Int(nullable: false),
+                        BuyingDate = c.DateTime(nullable: false),
                     })
                 .PrimaryKey(t => t.OrderId);
-
-
-            CreateTable(
-               "dbo.Like",
-               c => new
-               {
-                   LikeId = c.Int(nullable: false, identity: true),
-                   ImageId = c.Int(nullable: false),
-                   BuyingDate = c.DateTime(nullable: false),
-               })
-               .PrimaryKey(t => t.LikeId);
-
-
+            
             CreateTable(
                 "dbo.QueryHistories",
                 c => new
@@ -120,7 +132,7 @@ namespace Racoonogram.Migrations
                         QueryDate = c.DateTime(nullable: false),
                     })
                 .PrimaryKey(t => t.Id);
-            
+
             CreateTable(
                 "dbo.AspNetRoles",
                 c => new
@@ -130,7 +142,30 @@ namespace Racoonogram.Migrations
                     })
                 .PrimaryKey(t => t.Id)
                 .Index(t => t.Name, unique: true, name: "RoleNameIndex");
-            
+
+            CreateTable(
+                "dbo.PlanBuyings",
+                c => new
+                {
+                    Id = c.Int(nullable: false, identity: true),
+                    Id_user = c.String(),
+                    Id_plan = c.String(),
+                    MoneyBalance = c.Double(nullable: false),
+                    ImageBalance = c.Int(nullable: false),
+                    isHide = c.Int(nullable: true),
+                    BuyingDate = c.DateTime(nullable: false),
+                })
+                .PrimaryKey(t => t.Id);
+
+            CreateTable(
+                "dbo.Plans",
+                c => new
+                {
+                    Id = c.String(nullable: false, maxLength: 128),
+                    PlanPrice = c.Int(nullable: false),
+                    ImgCount = c.Int(nullable: false),
+                })
+                .PrimaryKey(t => t.Id);
         }
         
         public override void Down()
@@ -150,12 +185,16 @@ namespace Racoonogram.Migrations
             DropTable("dbo.AspNetRoles");
             DropTable("dbo.QueryHistories");
             DropTable("dbo.Orders");
-            DropTable("dbo.Like");
+            DropTable("dbo.Likes");
+            DropTable("dbo.ImgDownloads");
             DropTable("dbo.AspNetUserRoles");
             DropTable("dbo.AspNetUserLogins");
             DropTable("dbo.AspNetUserClaims");
             DropTable("dbo.AspNetUsers");
             DropTable("dbo.Images");
+            DropTable("dbo.Plans");
+            DropTable("dbo.PlanBuyings");
+
         }
     }
 }

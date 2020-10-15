@@ -5,77 +5,213 @@
 }
 
 
-<section id="search-section" style="background-image: url('@ViewBag.BackImage')">
-    <div class="container-fluid" style="@ViewBag.MinHeight">
+<section id="search-section-1" style="position:relative">
+
+    <div id="carousel-example-generic" class="carousel fade carousel-fade" data-ride="carousel" data-interval = "5000">
+        <div class="carousel-inner">
+            <div class="item active" id="u1" style="background-image:url('@ViewBag.BackImage[0]');"></div>
+            <div class="item" id="u2" style="background-image:url('@ViewBag.BackImage[1]');"></div>
+            <div class="item" id="u3" style="background-image:url('@ViewBag.BackImage[2]');"></div>
+        </div>
+    </div>
+
+    <div class="container-fluid" style="position:absolute;top:0;" id="main-page">
         <div class="search-form">
-            <h1>Racoonogram - живи ярко, наполняй цветом каждый день</h1>
+            <h1 class="xs-none">Racoonogram - живи ярко, наполняй цветом каждый день</h1>
 
             @using (Ajax.BeginForm("ImageSearch", "Home", new AjaxOptions { UpdateTargetId = "SearchResult" }, new { @class = "navbar-form form-search" }))
             {
-            <div class="input-group">
-                <input type="text" id="input-string-query" value="@ViewBag.StringValue" name="keywords" class="form-control" style="width:80%; height:40px;border-radius:4px" placeholder="Enter the word">
-                <input type="submit" id="submit-search" value="" class="btn btn-default selectType" style="width:40px;">
-                <input type="hidden" id="submit-search-npage" name="page" value="1" />
-                <input type="hidden" id="GetString" name="iscategory" value="@ViewBag.GetString" />
-                @*<input type="hidden" id="StringValue" value="@ViewBag.StringValue" />*@
-                <label for="submit-search"><i class="fa fa-search"></i></label>
-                <div class="dropdown selectType">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="selectType" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        <i id="selected-i" class="fa fa-camera-retro"></i>
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="selectType">
-                        <li class="selectTypeLi"><i class="fa fa-camera-retro" style="color:#000"></i></li>
-                        <li class="selectTypeLi"><i class="fa fa-picture-o" style="color:#000"></i></li>
-                        <li class="selectTypeLi"><i class="fa fa-video-camera" style="color:#000"></i></li>
-                    </ul>
+                <div class="input-group">
+                    <input type="text" id="input-string-query" value="@ViewBag.StringValue" name="keywords" class="form-control" placeholder="Enter the word">
+                    <input type="submit" id="submit-search" value="" class="btn btn-default selectType" style="width:40px;">
+                    <input type="hidden" id="submit-search-npage" name="page" value="1" />
+                    <input type="hidden" id="GetString" name="iscategory" value="@ViewBag.GetString" />
+                    <input type="hidden" name="Colors" id="Colors" />
+                    @*<input type="hidden" name="IsBlack" id="IsBlack" />*@
+                    <input type="hidden" name="Orient" id="Orient" />
+                    <input type="hidden" name="OrderBy" id="OrderBy" />
+                    <input type="hidden" name="Count" id="Count" />
+                    @*<input type="hidden" id="StringValue" value="@ViewBag.StringValue" />*@
+                    <label for="submit-search"><i class="fa fa-search"></i></label>
+                    @*<div class="dropdown selectType">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="selectType" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <i id="selected-i" class="fa fa-camera-retro"></i>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="selectType">
+                                <li class="selectTypeLi"><i class="fa fa-camera-retro" style="color:#000"></i></li>
+                                <li class="selectTypeLi"><i class="fa fa-picture-o" style="color:#000"></i></li>
+                                <li class="selectTypeLi"><i class="fa fa-video-camera" style="color:#000"></i></li>
+                            </ul>
+                        </div>*@
+                    <div class="dropdown selectType">
+                        <button class="btn btn-default" type="button" id="filter" onclick="filterclick()">
+                            <i id="selected-i" class="fa fa-sliders"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
             }
             <div class="examples">
                 <span class="no-style">for example:</span>
                 <span class="hrefs-query"><a href="/Home/PhotoGalery?querys=animal">animal</a></span>
                 <span class="hrefs-query"><a href="/Home/PhotoGalery?querys=forest">forest</a></span>
-                <span class="hrefs-query"><a href="/Home/PhotoGalery?querys=child">girl</a></span>
-                <span class="hrefs-query"><a href="/Home/PhotoGalery?querys=rainbod">nature</a></span>
+                <span class="hrefs-query"><a href="/Home/PhotoGalery?querys=girl">girl</a></span>
+                <span class="hrefs-query"><a href="/Home/PhotoGalery?querys=nature">nature</a></span>
             </div>
         </div>
     </div>
-    <div class="descr-image-back">
-        <p>
-            @if (ViewBag.BackAuthor != null)
-            {
-                <span>by: <a href="/Home/AuthorProfile/@ViewBag.BackAuthorHref" target="_blank">@ViewBag.BackAuthor - </a></span>
-            }
-            <span class="navbar-right">@ViewBag.likes <i class="fa fa-heart-o"></i></span>
-        </p>
+    @*<div class="descr-image-back xs-none">
+            <p>
+                @if (ViewBag.BackAuthor != null)
+                {
+                    <span>by: <a href="/Home/AuthorProfile/@ViewBag.BackAuthorHref" target="_blank">@ViewBag.BackAuthor - </a></span>
+                }
+                <span class="navbar-right">@ViewBag.likes <i class="fa fa-heart-o"></i></span>
+            </p>
 
-    </div>
+        </div>*@
 </section>
 
 @*@{Html.RenderPartial("Search");}*@
+<section id="filters" class="hidden">
+    <div class="container">
+        <div style="float:right;margin-bottom: 15px;">
+            <div class="btn-group">
+                <button class="btn btn-default dropdown-toggle" style="padding: 4px 10px;float: right;" type="button" id="selectCount" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    12
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu user-serach" aria-labelledby="selectType" style="width: 100%;">
+                    <li class="selectTypeLeftLi Count" id="12" style="cursor:pointer">12</li>
+                    <li class="selectTypeLeftLi Count" id="24" style="cursor:pointer">24</li>
+                    <li class="selectTypeLeftLi Count" id="60" style="cursor:pointer">60</li>
+                    <li class="selectTypeLeftLi Count" id="120" style="cursor:pointer">120</li>
 
-<section id="SearchResult">
+                </ul>
+            </div>
+            <div class="btn-group">
+                <button type="submit" class="btn btn-default dropdown-toggle submit-form-order" id="submitBtn1" style="font-size:10px;"><i class="fa fa-refresh"></i></button>
+            </div>
+        </div>
+        <div style="float:left;">
+            <div class="btn-group">
+                <button class="btn btn-default dropdown-toggle" style="float: left;" type="button" id="selectOrient" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    Ориентация
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu user-serach" aria-labelledby="selectType" style="width: 140px;">
+                    <li class="selectTypeLeftLi Orient" id="" style="cursor:pointer">Все</li>
+                    <li class="selectTypeLeftLi Orient" id="w" style="cursor:pointer">Горизонтальные</li>
+                    <li class="selectTypeLeftLi Orient" id="h" style="cursor:pointer">Вертикальные</li>
+                    <li class="selectTypeLeftLi Orient" id="s" style="cursor:pointer">Квадратные</li>
+                </ul>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-default dropdown-toggle" style="float: left;" type="button" id="selectColors" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    Цвет
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu user-serach" aria-labelledby="selectType" style="width: 130px;">
+                    <li class="selectTypeLeftLi Colors" id="" style="cursor:pointer"><i class="fa fa-circle-o"></i> Все</li>
+                    <li class="selectTypeLeftLi Colors" id="IsBlack" style="cursor:pointer"><i class="fa fa-circle-o"></i> Черно-белые</li>
+                    <li class="selectTypeLeftLi Colors" id="White" style="cursor:pointer"><i class="fa fa-square" style="color:White"></i> White</li>
+                    <li class="selectTypeLeftLi Colors" id="Yellow" style="cursor:pointer"><i class="fa fa-square" style="color:Yellow"></i> Yellow</li>
+                    <li class="selectTypeLeftLi Colors" id="Orange" style="cursor:pointer"><i class="fa fa-square" style="color:Orange"></i> Orange</li>
+                    <li class="selectTypeLeftLi Colors" id="Red" style="cursor:pointer"><i class="fa fa-square" style="color:Red"></i> Red</li>
+                    <li class="selectTypeLeftLi Colors" id="Purple" style="cursor:pointer"><i class="fa fa-square" style="color:Purple"></i> Purple</li>
+                    <li class="selectTypeLeftLi Colors" id="Blue" style="cursor:pointer"><i class="fa fa-square" style="color:Blue"></i> Blue</li>
+                    <li class="selectTypeLeftLi Colors" id="Green" style="cursor:pointer"><i class="fa fa-square" style="color:Green"></i> Green</li>
+                    <li class="selectTypeLeftLi Colors" id="Pink" style="cursor:pointer"><i class="fa fa-square" style="color:Pink"></i> Pink</li>
+                    <li class="selectTypeLeftLi Colors" id="Grey" style="cursor:pointer"><i class="fa fa-square" style="color:Grey"></i> Grey</li>
+                    <li class="selectTypeLeftLi Colors" id="Brown" style="cursor:pointer"><i class="fa fa-square" style="color:Brown"></i> Brown</li>
+                    <li class="selectTypeLeftLi Colors" id="Black" style="cursor:pointer"><i class="fa fa-square" style="color:Black"></i> Black</li>
+                </ul>
+            </div>
+            @*<div class="btn-group">
+                <input type="checkbox" class="btn btn-default submit-form-order" id="bw" style="float:left;padding: 4px 10px;font-size:10px;" />
+                <label>Черно-белое</label>
+            </div>*@
+            <div class="btn-group">
+                <button class="btn btn-default dropdown-toggle" style="float: left;text-align:  left;" type="button" id="selectOrderBy" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    Сначала новые
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu user-serach" aria-labelledby="selectType">
+                    <li class="selectTypeLeftLi OrderBy" id="o1" style="cursor:pointer">Сначала новые</li>
+                    <li class="selectTypeLeftLi OrderBy" id="o2" style="cursor:pointer">Сначала старые</li>
+                    <li class="selectTypeLeftLi OrderBy" id="o3" style="cursor:pointer">Сначала дешевые</li>
+                    <li class="selectTypeLeftLi OrderBy" id="o4" style="cursor:pointer">Сначала дорогие</li>
+                    @*<li class="selectTypeLeftLi OrderBy" id="o5" style="cursor:pointer">Сначала популярные</li>*@
+                </ul>
+            </div>
+
+            
+        </div>
+
+
+    </div>
 </section>
+<section id="SearchResult"></section>
 
 <section>
     @{Html.RenderAction("GetCategories", "Home");}
 </section>
 
 
-    @section Scripts{
-        @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.js")
-        @Scripts.Render("~/Scripts/like.js")
-        <script>
-            window.onload = function () {
-                //alert("333");
+@section Scripts{
+    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.js")
+    @Scripts.Render("~/Scripts/like.js")
+    <script>
+        window.onload = function () {
+            //alert("333");
+            //console.log(document.getElementById("input-string-query").value);
+            if (String(document.getElementById("input-string-query").value).length > 0) {
                 //console.log(document.getElementById("input-string-query").value);
-                if (String(document.getElementById("input-string-query").value).length > 0) {
-                    //console.log(document.getElementById("input-string-query").value);
-                    $("#form0").submit();
-                }
-            };
-        </script>
-    }
+                $("#form0").submit();
+            }
+        };
+        function filterclick() {
+            if (document.getElementById("filters").className == "hidden") {
+                document.getElementById("filters").classList.remove("hidden");
+            }
+            else document.getElementById("filters").classList.add("hidden");
+        };
+        //$("#submitBtn1").click(function (e) {
+        //    $
+        //})
+        //$("#bw").click(function (e) {
+        //    $("#IsBlack").val(this.checked);
+        //    $("#submit-search").submit();
+        //    $("#submit-search-npage").val(1);
+        //});
+
+        $("li.selectTypeLeftLi").click(function (e) {
+            $("#" + this.classList[1]).val(this.id);
+            $("#select" + this.classList[1]).html($(this).html() + " <span class='caret'></span>");
+            $("#submit-search-npage").val(1);
+            $("#submit-search").submit();
+        });
+        $(".submit-form-order").click(function (e) {
+            $f = this.id.substr(this.id.length - 1, 1);
+            $("#modalformorder" + $f).submit();
+        });
+
+        $("#submitBtn1").click(function (e) {
+            //$("#IsBlack").val("false");
+            //$("#bw").checked = false;
+            $("#Colors").val("");
+            $("#selectColors").html("Цвет <span class='caret'></span>");
+            $("#Orient").val("");
+            $("#selectOrient").html("Ориентация <span class='caret'></span>");
+            $("#OrderBy").val("");
+            $("#selectOrderBy").html("Сначала новые <span class='caret'></span>");
+            $("#Count").val("");
+            $("#selectCount").html("12 <span class='caret'></span>");
+            $("#submit-search-npage").val(1);
+            $("#submit-search").submit();
+        });
+    </script>
+}
 

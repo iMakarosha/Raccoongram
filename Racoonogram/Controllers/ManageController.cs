@@ -5,9 +5,12 @@ using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
 using System.Collections.Generic;
+using System.Data.Entity;
 using Racoonogram.Models;
+using im = Racoonogram.Models.Image;
 
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -18,12 +21,18 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 
+
+using System.Net;
+using System.Net.Mail;
+
+using System.Security.Cryptography;
+
 namespace Racoonogram.Controllers
 {
     [Authorize]
     public class ManageController : Controller
     {
-        const string subscriptionKey = "f4081285918f4874a517552daec09e67";
+        const string subscriptionKey = "c0e64c91c915499197d95e7243e31625";
         const string uriBase =
             "https://westcentralus.api.cognitive.microsoft.com/vision/v2.0/analyze";
 
@@ -32,8 +41,6 @@ namespace Racoonogram.Controllers
         I_U_Models uimdb = new I_U_Models();
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
-
-
 
         DateTime date = DateTime.Now.Subtract(new TimeSpan(7, 0, 0, 0));
 
@@ -124,6 +131,7 @@ namespace Racoonogram.Controllers
                 Category = u.Category,
                 KeyWords = u.KeyWords,
                 Description = u.Description,
+                Colors = u.Colors,
                 Price = u.Price
             }).Where(i => i.Id == Id).FirstOrDefault();
             if (imageToEdit == null)
@@ -141,9 +149,10 @@ namespace Racoonogram.Controllers
         public ActionResult SaveImageChanges(ImageUnload image)
         {
             Racoonogram.Models.Image imEdit = db.Images.Select(i => i).Where(i => i.ImageId == image.Id).FirstOrDefault();
-            imEdit.Category = image.Category;
-            imEdit.KeyWords = image.KeyWords;
-            imEdit.Description = image.Description;
+            imEdit.Category = image.Category.ToLower();
+            imEdit.KeyWords = image.KeyWords.ToLower();
+            imEdit.Description = image.Description.Substring(0, 1).ToUpper() +image.Description.Substring(1);
+            imEdit.Colors = image.Colors.ToLower();
             imEdit.Price = image.Price;
             db.SaveChanges();
             return RedirectToAction("Index");
@@ -324,9 +333,9 @@ namespace Racoonogram.Controllers
                 return Json("! Поле 'Ключевые слова' является обязательным для заполнения");
             }
             i.KeyWords = Request.Form["KeyWords"].ToLower();
-            if (Request.Form["Description"] != null)
+            if (Request.Form["Description"] != null&&Request.Form["Description"] != "")
             {
-                i.Description = Request.Form["Description"];
+                i.Description = Request.Form["Description"].Substring(0, 1).ToUpper()+ Request.Form["Description"].Substring(1); 
             }
             //var asdfl = Convert.ToDouble(Request.Form["Price"]);
             string Price = Request.Form["Price"];
@@ -342,6 +351,9 @@ namespace Racoonogram.Controllers
             else i.Price = Convert.ToDouble(Price);
             i.ApplicationUserId = User.Identity.GetUserId();
             i.Date = DateTime.Now;
+            i.Colors = Request.Form["Colors"].ToLower();
+            i.IsBlack = Convert.ToBoolean(Request.Form["IsBlack"]);
+            i.Orient = Request.Form["Orient"];
             string fullPath = Server.MapPath("~/Content/Content-image/");
             foreach (string file in Request.Files)
             {
@@ -370,26 +382,35 @@ namespace Racoonogram.Controllers
                         
                         System.Drawing.Image imNormal = System.Drawing.Image.FromFile(fullPathName);
                         imNormal.Save(newName);
-                        System.Drawing.Image imNormalSmall = RezizeImage(imNormal, 400,240);
 
-
+                        imNormal = RezizeImage(imNormal, 1920, 1920);
 
                         /*ДОБАВЛЕНИЕ ВОДЯНОГО ЗНАКА*/
-                        
-                        waterMarkIm = System.Drawing.Image.FromFile(Server.MapPath("~/Content/Images/")+ "Watermark_.png");
-                            int h = imNormalSmall.Height;
-                            int w = 400;
+                        if (imNormal.Width > imNormal.Height)
+                        {
+                            waterMarkIm = System.Drawing.Image.FromFile(Server.MapPath("~/Content/Images/") + "Watermark_.png");
+                        }
+                        else if (imNormal.Width < imNormal.Height)
+                        {
+                            waterMarkIm = System.Drawing.Image.FromFile(Server.MapPath("~/Content/Images/") + "Watermark__.png");
+                        }
+                        else
+                        {
+                            waterMarkIm = System.Drawing.Image.FromFile(Server.MapPath("~/Content/Images/") + "Watermark___.png");
+                        }
+                        int h = imNormal.Height;
+                        int w = imNormal.Width;
                             bit = new Bitmap(w, h);
                             using (Graphics g = Graphics.FromImage(bit))
                             {
-                                g.DrawImage(imNormalSmall, 0, 0, w, h);
-                                g.DrawImage(waterMarkIm, 10, ((imNormalSmall.Height - waterMarkIm.Height) / 2), waterMarkIm.Width, waterMarkIm.Height);
+                                g.DrawImage(imNormal, 0, 0, w, h);
+                                g.DrawImage(waterMarkIm, 10, ((imNormal.Height - waterMarkIm.Height) / 2), waterMarkIm.Width, waterMarkIm.Height);
                             }
 
+                        bit.Save(fullPath + i.ImageId + "_normal.jpg");
 
-
-
-                        bit.Save(fullPath + i.ImageId + "_sm.jpg");
+                        System.Drawing.Image imNormalSmall = RezizeImage(bit, 400, 240);
+                        imNormalSmall.Save(fullPath + i.ImageId + "_sm.jpg");
 
                         imNormalSmall = RezizeImage(imNormalSmall, 200,40);
                         imNormalSmall.Save(fullPath + i.ImageId + "_xs.jpg");
@@ -419,9 +440,9 @@ namespace Racoonogram.Controllers
                 db.SaveChanges();
                 if (System.IO.File.Exists(Server.MapPath("~/Content/Content-image/") + ruh + ".jpg"))
                 {
-                    System.IO.File.Delete(Server.MapPath("~/Content/Content-image/") + ruh + ".jpg");
+                    //System.IO.File.Delete(Server.MapPath("~/Content/Content-image/") + ruh + ".jpg");
+                    System.IO.File.Delete(Server.MapPath("~/Content/Content-image/") + ruh + "_normal.jpg");
                     System.IO.File.Delete(Server.MapPath("~/Content/Content-image/") + ruh + "_sm.jpg");
-                    System.IO.File.Delete(Server.MapPath("~/Content/Content-image/") + ruh + "_xs.jpg");
 
                 }
 
@@ -435,6 +456,19 @@ namespace Racoonogram.Controllers
         }
 
         public ActionResult Index()
+        {
+            if (User.IsInRole("admin")) { return RedirectToAction("IndexAdmin");}
+            else if (User.IsInRole("author")){ return RedirectToAction("IndexAuthor"); }
+            else if (User.IsInRole("user")) { return RedirectToAction("IndexUser"); }
+            else return HttpNotFound();
+        }
+        [Authorize(Roles = "admin")]
+        public ActionResult IndexAdmin()
+        {
+            return View();
+        }
+        [Authorize(Roles ="author")]
+        public ActionResult IndexAuthor()
         {
             AuthorAndAllImages UserAndImages = new AuthorAndAllImages();
             string userId = User.Identity.GetUserId();
@@ -458,8 +492,304 @@ namespace Racoonogram.Controllers
                              select l.LikeId).Count();
             ViewBag.deal = db.Orders.Where(o => o.ApplicationUserId == userId).Select(o => o.OrderId).Count();
             return View(UserAndImages);
+        }
+
+        [Authorize(Roles = "user")]
+        public ActionResult IndexUser()
+        {
+            UserAndImagesAndPlans userAndImages = new UserAndImagesAndPlans();
+            userAndImages.Id = User.Identity.GetUserId();
+            userAndImages.buyings = (from order in db.Orders
+                                     join use in db.Users on order.ApplicationUserId equals use.Id
+                                     where order.BuyerEmail == db.Users.Where(u => u.Id == userAndImages.Id).Select(u => u.Email).FirstOrDefault() && order.IsHide!=1
+                                     select new Buying
+                                     {
+                                         OrderId = order.OrderId,
+                                         AuthorId = order.ApplicationUserId,
+                                         AuthorName = use.UserName,
+                                         ImageId = order.ImageId,
+                                         OrdDate = order.BuyingDate,
+                                         Price = order.Price,
+                                         Size = order.Size + "px",
+                                         href = order.ImageId + "_xs.jpg"
+                                     }).OrderByDescending(o=>o.OrdDate).Take(12).ToList();
+            userAndImages.buyingsAll = (from order in db.Orders
+                                     join use in db.Users on order.ApplicationUserId equals use.Id
+                                     where order.BuyerEmail == db.Users.Where(u => u.Id == userAndImages.Id).Select(u => u.Email).FirstOrDefault() && order.IsHide != 1
+                                        select new Buying
+                                     {
+                                         OrderId = order.OrderId,
+                                         AuthorId = order.ApplicationUserId,
+                                         AuthorName = use.UserName,
+                                         ImageId = order.ImageId,
+                                         OrdDate = order.BuyingDate,
+                                         Price = order.Price,
+                                         Size = order.Size+"px",
+                                         href = order.ImageId + "_xs.jpg"
+                                     }).OrderByDescending(o => o.OrdDate).Skip(12).ToList();
+            try
+            {
+                userAndImages.likings = (from like in db.Likes
+                                         join img in db.Images on like.ImageId equals img.ImageId
+                                         where like.UserId == userAndImages.Id
+                                         group like by like.ImageId into k
+                                         select new Liking
+                                         {
+                                             ImageId = k.Key,
+                                             LikeDate = db.Likes.Where(l => l.ImageId == k.Key).Select(l => l.BuyingDate).OrderByDescending(l => l).FirstOrDefault(),
+                                             Url = k.Key + "_xs.jpg"
+                                         }).OrderByDescending(k => k.LikeDate).Take(12).ToList();
+            }
+            catch (Exception ex)
+            {
+                ViewBag.d = ex.Message;
+            }
+            userAndImages.User = db.Users.Where(u => u.Id == userAndImages.Id).Select(u => u).FirstOrDefault();
+            
+            userAndImages.ImNews1 = db.Images.OrderByDescending(i => i.Date).Select(i => new BestImagesL
+            {
+                Id = i.ImageId,
+                Url = i.ImageId + "_sm.jpg",
+
+            }).Take(8).ToList();
+            userAndImages.ImNews2 = db.Images.OrderByDescending(i => i.Date).Select(i => new BestImagesL
+            {
+                Id = i.ImageId,
+                Url = i.ImageId + "_sm.jpg",
+
+            }).Skip(8).Take(8).ToList();
+            userAndImages.ImFree = db.Images.Where(i => i.Price == 0).Select(i => new BestImagesL
+            {
+                Id = i.ImageId,
+                Url = i.ImageId+"_sm.jpg",
+
+            }).OrderByDescending(i => i.Id).Take(5).ToList();
+            userAndImages.querysPopulars = db.QueryHistories.GroupBy(q => q.QuerySting).Select(j => new QuerysPopular
+            {
+                QueryStr  = j.Key,
+                CountThisSearch = db.QueryHistories.Where(q=>q.QuerySting==j.Key).Select(q => q.QuerySting).Count()
+            }).OrderByDescending(j => j.CountThisSearch).Take(5).ToList();
+            ViewBag.Logo = "/Content/User-logo/"+userAndImages.Id+".jpg";
+
+
+            userAndImages.userMoneys = db.PlanBuyings.Where(pb => pb.Id_user == userAndImages.Id && pb.MoneyBalance > 0).Select(pb => new UserMoney
+            {
+                MoneyBalance = Math.Round(pb.MoneyBalance, 2),
+                LastDate = pb.BuyingDate
+            }).FirstOrDefault();
+            if (userAndImages.userMoneys == null) userAndImages.userMoneys = new UserMoney { MoneyBalance=0 };
+
+            userAndImages.plans = db.PlanBuyings.Where(pb => pb.Id_user == userAndImages.Id && pb.Id_plan.Contains("p")
+            && pb.isHide==0).Join(db.Plans, pb=>pb.Id_plan,b=>b.Id,(pb, b)=> new Plans
+            {
+                Id = pb.Id,
+                PlanId = pb.Id_plan,
+                isHide = pb.isHide,
+                BuyingDate = pb.BuyingDate,
+                ImageBalance = pb.ImageBalance,
+                StartImageBalance=b.ImgCount,
+                StartPrice = b.PlanPrice
+            }).ToList();
+
+            return View(userAndImages);
+        }
+
+
+
+
+        [HttpPost]
+        public JsonResult ImageBuy(string email, string optradio, int ImageId, string ApplicationUserId)
+        {
+            if (email == null || email == "")
+                return Json("<b style='color:red'>Поле Email обязательно для заполнения</b>");
+            if (optradio == null || optradio == "")
+                return Json("<b style='color:red'>Выберите размер загружаемой фотографии</b>");
+            //if(активных планов нет то ... ){ } else{ 
+            int size = Convert.ToInt32(optradio.Substring(0, optradio.Length - 2));
+            try
+            {
+                Order orders = db.Orders.Where(o => o.BuyerEmail == email && o.ImageId == ImageId && o.Size == size).Select(o => o).FirstOrDefault();
+                //string path = Server.MapPath("/Content/Content-image/" + ImageId + ".jpg");
+                //byte[] mas = System.IO.File.ReadAllBytes(path);
+                //string file_type = "application/jpg";
+                //string file_name = "Raccoonogram_im.jpg";
+                //return File(mas, file_type, file_name);
+                if (orders == null)
+                {
+                    string idOfImg = GetFile(ImageId, size);
+                    if (idOfImg.IndexOf("System.IO.FileNotFoundException: ") > -1) { return Json("<p style='font-weight:bold;color:red;text-align:center;'>Мы сожалеем, данное изображение удалено правообладателем.<p>"); }
+                    else
+                    {
+                        double price = db.Images.Where(i => i.ImageId == ImageId).Select(i => i.Price).First();
+                        Order order = new Order
+                        {
+                            ImageId = ImageId,
+                            ApplicationUserId = ApplicationUserId,
+                            BuyerEmail = email,
+                            Size = size,
+                            Price = price,
+                            BuyingDate = DateTime.Now,
+                            IsHide = 0
+                        };
+                        db.Orders.Add(order);
+                        string buyerId = db.Users.Where(u => u.Email == email).Select(u => u.Id).FirstOrDefault();
+                        PlanBuying buying = db.PlanBuyings.Where(p => p.Id_user == buyerId && (p.ImageBalance > 0 || p.MoneyBalance > order.Price)).Select(p => p).FirstOrDefault();
+                        if (buying.ImageBalance.ToString() != null && buying.ImageBalance>0)
+                        {
+                            buying.ImageBalance -= 1;
+                        }
+                        else buying.MoneyBalance -= order.Price;
+
+                        db.SaveChanges();
+                        return sendHrefImg(email, size, idOfImg);
+
+                    }
+                }
+                else
+                {
+                    return Redownload(orders.OrderId);
+                }
+            }
+            catch(Exception ex)
+            {
+                return Json("ddd");
+            }
 
         }
+
+        private JsonResult sendHrefImg(string email, int size, string idOfImg)
+        {
+            /*отправка ссылки на изображение по почте*/
+            SmtpClient smtpClient = new SmtpClient("smtp.mail.ru", 25);
+            smtpClient.Credentials = new NetworkCredential("rosavtodorcza@mail.ru", "tararaKota1235");
+            MailAddress to = new MailAddress(email);
+            MailAddress from = new MailAddress("rosavtodorcza@mail.ru", "Фотобанк Raccoonogram");
+            MailMessage message = new MailMessage(from, to);
+            message.Subject = "Ссылка для скачивания изображения";
+            message.IsBodyHtml = true;
+            var ashref = Request.Url.ToString().Substring(0, Request.Url.ToString().LastIndexOf((String)RouteData.Values["controller"].ToString()));
+            message.Body = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'></head><body><h2>Загрузка изображения - фотобанк Raccoonogram</h2>" +
+"<p>Для скачивания фотографии перейдите по ссылке ниже:</p><br><a download href='" + ashref + "/Home/GetImg/" + idOfImg + "' title='Получить приобретенное изображение'>" + ashref + "/Home/GetImg/" + idOfImg + "</a> <hr/><p>Служба поддержки сервиса Raccoonogram</p><br/><p>Возникли вопросы? Напишите нам: Raccoonogram.help@gmail.com</p><p style='text-align:right'>" + DateTime.Now + "</p></body></html>";
+            smtpClient.EnableSsl = true;
+            try
+            {
+                smtpClient.Send(message);
+                ImgDownload imgDownload = new ImgDownload();
+                imgDownload.Id = idOfImg;
+                imgDownload.DateLast = DateTime.Now.AddDays(1);
+                db.ImgDownloads.Add(imgDownload);
+                db.SaveChanges();
+                return Json(size);
+            }
+            catch (Exception ex)
+            { return Json(ex.Message); }
+        }
+
+        public string GetFile(int ImageId, int size)
+        {
+            try
+            {
+                System.Drawing.Image imNormal = System.Drawing.Image.FromFile(Server.MapPath("/Content/Content-image/" + ImageId + ".jpg"));
+                System.Drawing.Image iii;
+
+
+                Double xRatio = (double)imNormal.Width / size;
+                Double yRatio = (double)imNormal.Height / size;
+                Double ratio = Math.Max(xRatio, yRatio);
+                int nnx = (int)Math.Floor(imNormal.Width / ratio);
+                int nny = (int)Math.Floor(imNormal.Height / ratio);
+                var destRect = new System.Drawing.Rectangle(0, 0, nnx, nny);
+                var destImage = new System.Drawing.Bitmap(nnx, nny);
+                destImage.SetResolution(imNormal.HorizontalResolution, imNormal.VerticalResolution);
+                using (var grapgics = System.Drawing.Graphics.FromImage(destImage))
+                {
+                    grapgics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
+                    grapgics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                    grapgics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    grapgics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                    grapgics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+
+                    using (var wrapMode = new System.Drawing.Imaging.ImageAttributes())
+                    {
+                        wrapMode.SetWrapMode(System.Drawing.Drawing2D.WrapMode.TileFlipXY);
+                        grapgics.DrawImage(imNormal, destRect, 0, 0, imNormal.Width, imNormal.Height, System.Drawing.GraphicsUnit.Pixel, wrapMode);
+                    }
+                }
+                iii = destImage;
+
+                string name = "Raccoonogram_im_" + ImageId + "_" + size + "_" + DateTime.Now;
+                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                using (MD5 md5hash = MD5.Create())
+                {
+                    byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(name);
+                    byte[] hash = md5hash.ComputeHash(inputBytes);
+                    for (int i = 0; i < hash.Length; i++)
+                    {
+                        sb.Append(hash[i].ToString("X2"));
+                    }
+                }
+
+                //string file_type = "application/jpg";
+                string file_name = System.Web.Hosting.HostingEnvironment.MapPath("~/Content/downloads/") + sb.ToString() + ".jpg";
+                iii.Save(file_name);
+                return sb.ToString();
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+        [HttpPost]
+        public JsonResult ImgHide(int Id)
+        {
+            try
+            {
+                var img = db.Orders.Where(o => o.OrderId == Id).Select(o => o).FirstOrDefault();
+                img.IsHide = 1;
+                db.SaveChanges();
+                return Json("Ok");
+            }
+            catch (Exception ex)
+            {
+                string s = ex.Message;
+                return Json("false");
+            }
+        }
+        [HttpPost]
+        public JsonResult PlanHide(int Id)
+        {
+            try
+            {
+                var plan = db.PlanBuyings.Where(pb=>pb.Id==Id).Select(pb=>pb).FirstOrDefault();
+                plan.isHide = 1;
+                db.SaveChanges();
+                return Json("Ok");
+            }
+            catch (Exception ex)
+            {
+                string s = ex.Message;
+                return Json("false");
+            }
+        }
+        [HttpPost]
+        public JsonResult Redownload(int orderid)
+        {
+            Order order = db.Orders.Where(o => o.OrderId == orderid).Select(o => o).FirstOrDefault();
+            if (order != null)
+            { 
+                string idOfImg = GetFile(order.ImageId, order.Size);
+                if (idOfImg.IndexOf("System.IO.FileNotFoundException: ") > -1) { return Json("<p style='font-weight:bold;color:red;text-align:center;'>Мы сожалеем, данное изображение удалено правообладателем.<p>"); }
+                else
+                {
+                    string userid = User.Identity.GetUserId();
+                    string email = db.Users.Where(u => u.Id == userid).Select(u => u.Email).FirstOrDefault();
+                    return sendHrefImg(email, order.Size, idOfImg);
+                }
+            }
+            return Json("error");
+        }
+
+
 
 
         //СТАТИСТИКА
@@ -544,7 +874,13 @@ namespace Racoonogram.Controllers
             ForStatisticsCommon statisticsCommon = new ForStatisticsCommon();
             statisticsCommon.I = 3947;
             DateTime date = DateTime.Now.Subtract(new TimeSpan(7, 0, 0, 0));
-            statisticsCommon.CommonSum = db.Orders.Where(o => o.BuyingDate > date).Select(o => o.Price).Sum().ToString().Replace(',', '.');
+            
+            try
+            {
+                var it = db.Orders.Where(o => o.BuyingDate > date).Select(o => o.Price).Sum();
+                statisticsCommon.CommonSum = it.ToString().Replace(',', '.');
+            }
+            catch (Exception) { statisticsCommon.CommonSum = "13.39"; }
             IEnumerable<QuerysPopular> querys1 = db.QueryHistories.Select(z => new QuerysPopular
             {
                 QueryStr = z.QuerySting,

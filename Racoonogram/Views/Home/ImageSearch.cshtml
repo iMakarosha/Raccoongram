@@ -18,19 +18,22 @@
             <h2>Результаты поиска:</h2>
             @foreach (var item in Model.ImagesPag)
             {
-                <div class="col-sm-4 img-descr-image">
-                    <a href="/Home/ImagePreview/@item.ImageId" target="_blank">
+                <div class="col-sm-4 col-xs-6 img-descr-image">
+                    <a href="/Home/ImagePreview/@item.ImageId">
                         <img src="~/Content/Content-image/@item.Url" onerror="this.src='/Content/Images/notFound.jpg'" />
                     </a>
                     <div class="descr-image">
-                        <p>
-                            @if (item.ApplicationUserId != null)
+                        @if (item.ApplicationUserId != null)
                             {
-                                <span>by: <a href="/Home/AuthorProfile/@item.ApplicationUserId" target="_blank">@item.User.UserName</a></span>
+                                <span>by: <a href="/Home/AuthorProfile/@item.ApplicationUserId">@item.User.UserName</a></span>
                             }
-                            <span class="navbar-right"><a href="#" class="aLike" id="@item.ImageId"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
-                        </p>
+                        </div>
+                    <div class="drop-buttons">
+
+                        <a href="#" class="aLike" id="@item.ImageId"><i class="fa fa-heart-o"></i></a>
+                        <a href="#shareModal" style="padding-right:9px" data-toggle="modal" data-whatever="@item.ImageId"><i class="fa fa-share-alt"></i></a>
                     </div>
+
                 </div>
             }
 

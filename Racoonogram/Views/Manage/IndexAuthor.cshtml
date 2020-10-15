@@ -1,0 +1,265 @@
+﻿@model Racoonogram.Models.AuthorAndAllImages
+@using Racoonogram.Models
+
+
+
+
+
+<title>AuthorProfile</title>
+<div class="container" style="margin-top:30px">
+    <div class="row">
+
+        <div class="col-sm-4 col-xs-offset-1">
+            <div style="margin:auto;width: 224px;height: 224px;border-radius:153px;border: 1px solid #aaa;padding: 1px;">
+                <img src="@ViewBag.Logo" alt="Logo of user @Model.User.UserName" style="object-fit:cover;width:220px;height:220px;border-radius: 152px;border: 3px solid #999;" />
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="dropdown" style="font-size: 30px;">
+                <span style="margin: 0 10px 0 10%;"><b>@Html.DisplayFor(model => model.User.UserName)</b></span>
+
+                <button class="btn btn-default " type="button" id="drop-statist" onclick="location.href='/Manage/Statistics'"><i class="fa fa-bar-chart"></i></button>
+
+                <button class="btn dropdown-toggle btn-default " type="button" id="drop-setting" data-toggle="dropdown"><i class="fa fa-gear"></i></button>
+                <ul id="ul-drop-setting" class="dropdown-menu" aria-labelledby="drop-setting">
+                    <li>@Html.ActionLink("Редактор профиля", "ChangeProfile")</li>
+                    <li>@Html.ActionLink("Смена пароля", "ChangePassword")</li>
+                    @*<li>@Html.ActionLink("Дополнительно", "AccountEditor", "Manage")</li>*@
+                    <li class="divider"></li>
+                    <li><a href="#">Вывести средства</a></li>
+
+                </ul>
+            </div>
+
+
+            <table style="margin:10px 0">
+                <tr>
+                    <td>
+                        <span style="float:left">
+                            @Html.Label("Статус:")
+                        </span>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => model.User.Status)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span style="float:left">
+                            @Html.Label("О себе:")
+                        </span>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => model.User.Additionally)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span style="float:left">
+                            @Html.Label("Контакты:")
+                        </span>
+                    </td>
+                    <td>
+                        @if (Model.User.Site != null)
+                        {
+                            <a href="@Model.User.Site" target="_blank">@ViewBag.ShortUrl</a>
+                        }
+                    </td>
+                </tr>
+
+
+            </table>
+            <div class="col-xs-4">
+                <span>Работ: <b>@ViewBag.photos</b></span>
+            </div>
+            <div class="col-xs-4">
+                <span>Лайков: <b>@ViewBag.likes</b></span>
+            </div>
+            <div class="col-xs-4">
+                <span>Сделок: <b>@ViewBag.deal</b></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<div class="container">
+        <div class="row">
+            <h2>Работы автора:</h2>
+            @foreach (var item in Model.ImagesUser)
+                {
+                    <div class="col-sm-4 img-descr-image">
+                        <a href="/Home/ImagePreview/@item.ImageId">
+                            <img src="~/Content/Content-image/@item.Url" onerror="this.src='/Content/Images/notFound.jpg'" />
+                        </a>
+                        <div class="descr-image">
+                            <p>
+                                <span class="navbar-right"><a href="#"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
+                            </p>
+                        </div>
+                    </div>
+            }
+            @Html.Partial("GetImages", Model.ImagesUser)
+        </div>
+    </div>*@
+
+<section>
+    <div class="container">
+
+        <div class="row">
+            <div class="col-xs-12" style="text-align:center">
+                <label style="font-size:30px;margin-left: -130px;font-weight:300;margin-bottom: 50px;">Мои работы</label>
+
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal" style="margin-top: 50px;margin-left: -8px;float: left;">Добавить фото</button>
+            </div>
+        </div>
+        <div class="row">
+            @*<ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#edit" data-toggle="tab">edit photo</a>
+                    </li>
+                    <li>
+                        <a href="#add" data-toggle="tab">Add photo</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content clearfix">
+                    <div class="tab-pane active" id="edit">*@
+            @foreach (var item in Model.ImagesUser)
+            {
+                <div class="col-sm-3 col-xs-6 img-descr-image">
+                    <a href="/Home/ImagePreview/@item.ImageId">
+                        <img src="~/Content/Content-image/@item.Url" onerror="this.src='/Content/Images/notFound.jpg'" />
+                    </a>
+                    <div class="descr-image-user">
+                        <span class="navbar-right">
+                            <button type="button" data-toggle="modal" data-target="#editModal" style="background-color: #fff;" data-whatever="@item.ImageId">
+                                <i class="fa fa-pencil"></i>
+                            </button><button id="delete_@item.ImageId" onclick="deletePhoto(@item.ImageId)" style="background-color: #fff;"><i class="fa fa-remove"></i></button>
+                        </span>
+                    </div>
+                </div>
+            }
+            @*</div>
+
+                <div class="tab-pane" id="add">*@
+
+
+            @*</div>*@
+            @*</div>*@
+
+
+        </div>
+    </div>
+</section>
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalBtn">
+    <div class="modal-dialog modal-80-100" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h2>Добавление фотографий</h2>
+                <button id="clear-all"><i class="fa fa-repeat"></i></button>
+
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <div class="col-md-5" style="margin-bottom:30px;">
+                        @using (Html.BeginForm())
+                        {
+                            <div id="block-errors" style="color:red;text-align: center; margin: -15px 30px 15px; font-weight: bold;"></div>
+                            <div style="margin: auto;padding-bottom: 10px;position: relative;">
+                                <input id="fileInput" type="file" @*multiple*@ accept=".jpg, .png" />
+                            </div>
+                            @Html.ValidationSummary(true)
+                            <div class="editor-label">
+                                @Html.Label("Категория")
+                            </div>
+                            <div class="editor-field">
+                                @*@Html.DropDownList("Category", ViewBag.List as SelectList,new { @class = "ddd" })*@
+                                @Html.Editor("Category", new { htmlAttributes = new { @class = "form-control", id = "Category", type = "text" } })
+                            </div>
+
+                            <div class="editor-label">
+                                @Html.Label("Ключевые слова")
+                            </div>
+                            <div class="editor-field">
+                                <textarea id="KeyWords" name="KeyWords" class="form-control" aria-describedby="Price"></textarea>
+
+
+                            </div>
+                            <div class="editor-label">
+                                @Html.Label("Описание")
+                            </div>
+                            <div class="editor-field">
+                                <textarea id="Description" name="Description" class="form-control" aria-describedby="Price"></textarea>
+
+                            </div>
+
+                            <div class="editor-label">
+                                @Html.Label("Цена")
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="Price" name="Price" class="form-control" placeholder="Стоимость не должна превышать 6$" aria-describedby="Price">
+                                <span class="input-group-addon" id="Price" name="Price">$</span>
+
+                            </div>
+
+                            <p><br /></p>
+                            <input type="hidden" name="Colors" id="Colors" />
+                            <input type="hidden" name="IsBlack" id="IsBlack" value="false" />
+                            <input type="hidden" name="Orient" id="Orient" />
+                            <input type="submit" class="form-control" id="submitFileInput" />
+                        }
+
+                    </div>
+
+                    <div class="col-md-7">
+                        <ul id="listOfErr"></ul>
+                        <div id="list" style="position:relative;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalBtn">
+    <div class="modal-dialog modal-80-100" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h2>Редактор фотографий</h2>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    @using (Ajax.BeginForm("EditImage", "Manage", new AjaxOptions { UpdateTargetId = "Result" }, new { id = "partForm" }))
+                    {
+                        <input type="hidden" id="imneed" name="imneed" />
+                    }
+                </div>
+                <div class="row" id="Result">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryval")
+@section Scripts{
+    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.js");
+    @Scripts.Render("~/Scripts/myImageManager.js");
+}
+
+
+
+
+
+
+

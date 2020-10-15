@@ -8,40 +8,41 @@
         <div>
 
             <div class="col-sm-10 col-sm-offset-1">
-                <table style="width:100%">
+               
+                <table style="width:100%" id="table-users">
                     <tr>
                         <th width="10%"></th>
-                        <th>Login</th>
-                        <th>Connect</th>
-                        <th width="15%">Publications</th>
-                        <th width="8%">Likes</th>
+                        <th>Логин</th>
+                        <th class="hidden-column">Связь</th>
+                        <th class="column-i"><i class="fa fa-picture-o"></i></th>
+                        <th class="column-i"><i class="fa fa-heart-o"></i></th>
                     </tr>
                     @foreach (var item in Model.userSearches)
     {
 
-                    <tr>
-                        <td>
-                            <a href="/Home/AuthorProfile/@item.Id" target="_blank">
-                                <img src="@item.UrlLogo" onerror="this.src='/Content/Images/notFound.jpg'" style=" object-fit:cover;height:60px;width: 60px;border-radius:30px;margin-right: 20px;" />
-                            </a>
-                        </td>
-                            <td>
-                                <a href="/Home/AuthorProfile/@item.Id" target="_blank">
-                                    @item.UserName
-                                </a>
-                            </td>
-                            <td>
-                                <a href="@item.Site" target="_blank">
-                                    @item.SiteShort
-                                </a>
-                            </td>
-                            <td>
-                                <span>@item.CountPubl</span>
-                            </td>
-                            <td>
-                                <span>@item.CountFollow</span>
-                            </td>
-                    </tr>
+                <tr>
+                    <td>
+                        <a href="/Home/AuthorProfile/@item.Id" target="_blank">
+                            <img src="@item.UrlLogo" onerror="this.src='/Content/Images/notFound.jpg'" class="user-small-logo"/>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="/Home/AuthorProfile/@item.Id" target="_blank">
+                            @item.UserName
+                        </a>
+                    </td>
+                    <td class="hidden-column">
+                        <a href="@item.Site" target="_blank">
+                            @item.SiteShort
+                        </a>
+                    </td>
+                    <td align="right">
+                        <span>@item.CountPubl</span>
+                    </td>
+                    <td align="right">
+                        <span>@item.CountFollow</span>
+                    </td>
+                </tr>
 
 }
                 </table>

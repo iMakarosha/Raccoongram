@@ -10,6 +10,9 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Racoonogram.Models;
 
+using System.Net;
+using System.Net.Mail;
+
 namespace Racoonogram.Controllers
 {
     [Authorize]
@@ -27,7 +30,9 @@ namespace Racoonogram.Controllers
             UserManager = userManager;
             SignInManager = signInManager;
         }
-       
+
+        
+
 
         public ApplicationSignInManager SignInManager
         {
@@ -156,14 +161,14 @@ namespace Racoonogram.Controllers
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    UserManager.AddToRole(user.Id, model.Role);
+
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
                     // Дополнительные сведения о включении подтверждения учетной записи и сброса пароля см. на странице https://go.microsoft.com/fwlink/?LinkID=320771.
                     // Отправка сообщения электронной почты с этой ссылкой
                     // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                     // await UserManager.SendEmailAsync(user.Id, "Подтверждение учетной записи", "Подтвердите вашу учетную запись, щелкнув <a href=\"" + callbackUrl + "\">здесь</a>");
-
                     return RedirectToAction("Index", "Manage");
                 }
                 AddErrors(result);
@@ -203,11 +208,76 @@ namespace Racoonogram.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await UserManager.FindByNameAsync(model.Email);
-                if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
+                var user = await UserManager.FindByEmailAsync(model.Email);
+                if (user == null /*|| !(await UserManager.IsEmailConfirmedAsync(user.Id))*/)
                 {
                     // Не показывать, что пользователь не существует или не подтвержден
-                    return View("ForgotPasswordConfirmation");
+                    ViewBag.errors = "Данный адрес электронной почты не зарегистрирован в базе.";
+                    return View(model);
+                }
+                else
+                {
+                    //SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 465);
+                    //smtpClient.Credentials = new NetworkCredential("Raccoonogram.help@gmail.com", "eenot549/xa");
+
+                    //MailAddress to = new MailAddress("Irishka.babaskina.1999@yandex.ru");
+                    //MailAddress from = new MailAddress("Raccoonogram.help@gmail.com", "Raccoonogram фотобанк");
+                    //MailMessage message = new MailMessage(from, to);
+                    //message.Subject = "Восстановление пароля - фотобанк Racconogram";
+                    //message.Body = user.UserName+"<a href='https://med.cbomk.ru'></a>";
+                    //smtpClient.EnableSsl = true;
+                    //smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
+                    //smtpClient.UseDefaultCredentials = true;
+                    //try
+                    //{
+                    //    smtpClient.Send(message);
+                    //    return View("ForgotPasswordConfirmation");
+                    //}
+                    //catch(Exception ex)
+                    //{
+                    //    ViewBag.ex = ex;
+                    //    return View(model);
+                    //}
+                    string code = "";
+                    Random r = new Random();
+                    char[] charArray = new char[72];
+                    int z = 0;
+                    for(char p = 'a'; p<= 'z'; p++)
+                    { charArray[z] = p; z++; }
+                    for (char p = '0'; p <= '9'; p++)
+                    { charArray[z] = p; z++; }
+                    for (char p = 'A'; p <= 'Z'; p++)
+                    { charArray[z] = p; z++; }
+                    for (char p = '0'; p <= '9'; p++)
+                    { charArray[z] = p; z++; }
+                    for (int p = 0; p < 30; p++)
+                    {
+                        code += charArray[r.Next(0, 71)];
+                    }
+                    SmtpClient smtpClient = new SmtpClient("smtp.mail.ru", 25);
+                    smtpClient.Credentials = new NetworkCredential("rosavtodorcza@mail.ru", "tararaKota1235");
+
+                    MailAddress to = new MailAddress(model.Email);
+                    MailAddress from = new MailAddress("rosavtodorcza@mail.ru", "Фотобанк Raccoonogram");
+                    MailMessage message = new MailMessage(from, to);
+                    message.Subject = "Восстановление пароля - фотобанк Racconogram";
+                    message.IsBodyHtml = true;
+                    message.Body = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'></head><body><h2>Восстановление пароля - фотобанк Raccoonogram</h2><p>Ваш логин: " + user.UserName + "</p><p>Ключ: "+ code +
+                        "</p><p>В целях безопасности Ваших данных мы не храним Ваш пароль. Вам необходимо придумать новый, после чего доступ к аккаунту будет восстановлен.</p><br><hr/><p>Служба поддержки сервиса Raccoonogram</p><p>Возникли вопросы? Напишите нам: Raccoonogram.help@gmail.com</p><p style='text-align:right'>"+DateTime.Now+"</p></body></html>";
+                    smtpClient.EnableSsl = true;
+                    try
+                    {
+                        smtpClient.Send(message);
+                        ViewBag.KeyString = code;
+                        ViewBag.Email = model.Email;
+                        return View("ForgotPasswordConfirmation");
+                    }
+                    catch (Exception ex)
+                    {
+                        ViewBag.ex = ex;
+                        return View(model);
+                    }
+
                 }
 
                 // Дополнительные сведения о включении подтверждения учетной записи и сброса пароля см. на странице https://go.microsoft.com/fwlink/?LinkID=320771.
@@ -220,6 +290,64 @@ namespace Racoonogram.Controllers
 
             // Появление этого сообщения означает наличие ошибки; повторное отображение формы
             return View(model);
+        }
+        [HttpPost]
+        public ActionResult RefreshPass()
+        {
+            return View();
+        }
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public ActionResult ForgotPasswordConfirmation(ResetPasswordViewModel model, string keystr, string email)
+        {
+            string s;
+            if (ModelState.IsValid)
+            {
+                var user = UserManager.FindByEmail(model.Email);
+                if (user == null)
+                {
+                    // Не показывать, что пользователь не существует
+                    return RedirectToAction("ResetPasswordConfirmation", "Account");
+                }
+                UserManager.RemovePassword(user.Id);
+                UserManager.AddPassword(user.Id, model.Password);
+                //var user1 = UserManager.FindByEmail(model.Email);
+                //var result = UserManager.ResetPasswordAsync(user.Id.ToString(), model.Code.ToString(), model.Password);
+                //if (result.Succeeded)
+                //{
+                //    var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+                //    if (user != null)
+                //    {
+                //        await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+                //    }
+                //    return RedirectToAction("Index", new { Message = ManageMessageId.ChangePasswordSuccess });
+                //}
+                return RedirectToAction("Login");
+            }
+            else
+            {
+                ViewBag.KeyString = keystr;
+                ViewBag.Email = email;
+                return View();
+                //int i = 0;
+                ////while (i<ModelState.Values.Count(){
+                //var jd = ModelState;
+                //foreach (var error in ModelState.Values) {
+                //    if (error.Errors.Count() > 0)
+                //    {
+                //        foreach(var err in error.Errors)
+                //        {
+                //            jd.AddModelError(err.ErrorMessage.ToString(), new Exception());
+                //        }
+                //    }
+                //    var rdsf = error.Errors;
+                //    //ModelState.AddModelError("", error);
+                //}
+                //ModelState = jd;
+                //ModelState.AddModelError();ViewBag.KeyString
+            }
+            
         }
 
         //

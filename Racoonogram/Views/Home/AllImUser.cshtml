@@ -15,16 +15,17 @@
 <h2>Работы автора:</h2>
 @foreach (var item in Model)
 {
-    <div class="col-sm-4 img-descr-image">
-        <a href="/Home/ImagePreview/@item.ImageId">
-            <img src="~/Content/Content-image/@item.Url" onerror="this.src='/Content/Images/notFound.jpg'" />
-        </a>
-        <div class="descr-image">
-            <p>
-                <span class="navbar-right"><a href="#" class="aLike" id="@item.ImageId"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
-            </p>
-        </div>
+<div class="col-sm-4 col-xs-6 img-descr-image">
+    <a href="/Home/ImagePreview/@item.ImageId">
+        <img src="~/Content/Content-image/@item.Url" onerror="this.src='/Content/Images/notFound.jpg'" />
+    </a>
+    
+    <div class="drop-buttons">
+
+        <a href="#" class="aLike" id="@item.ImageId"><i class="fa fa-heart-o"></i></a>
+        <a href="#shareModal" style="padding-right:9px" data-toggle="modal" data-whatever="@item.ImageId"><i class="fa fa-share-alt"></i></a>
     </div>
+</div>
 }
 
 @*<div class="btn-group">

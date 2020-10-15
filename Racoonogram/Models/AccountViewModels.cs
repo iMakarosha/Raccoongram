@@ -75,6 +75,12 @@ namespace Racoonogram.Models
         public string Email { get; set; }
 
         [Required]
+        [Display(Name = "Вы хотите")]
+        //[StringLength(18, MinimumLength = 5)]
+        //[Remote("CheckLogin", "Account", ErrorMessage = "Пользователь с данным логином уже зарегистрирован")]
+        public string Role { get; set; }
+
+        [Required]
         [Display(Name = "Логин")]
         [StringLength(18, MinimumLength = 5)]
         //[Remote("CheckLogin", "Account", ErrorMessage = "Пользователь с данным логином уже зарегистрирован")]

@@ -48,14 +48,16 @@
 
 
             </table>
-            <div class="col-xs-4">
-                <span>Работ: <b>@ViewBag.photos</b></span>
-            </div>
-            <div class="col-xs-4">
-                <span>Лайков: <b>@ViewBag.likes</b></span>
-            </div>
-            <div class="col-xs-4">
-                <span>Сделок: <b>@ViewBag.deal</b></span>
+            <div class="row">
+                <div class="col-xs-4">
+                    <span>Работ: <b>@ViewBag.photos</b></span>
+                </div>
+                <div class="col-xs-4">
+                    <span>Лайков: <b>@ViewBag.likes</b></span>
+                </div>
+                <div class="col-xs-4">
+                    <span>Сделок: <b>@ViewBag.deal</b></span>
+                </div>
             </div>
         </div>
     </div>
@@ -67,7 +69,8 @@
     </div>
 </div>
 <p>
-    @Html.ActionLink("Back to List", "Index")
+    @*@Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |*@
+    @*@Html.ActionLink("Back to List", "Index")*@
 </p>
 
 

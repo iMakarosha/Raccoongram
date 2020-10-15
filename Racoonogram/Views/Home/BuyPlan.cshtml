@@ -1,0 +1,51 @@
+﻿
+<h2 style="margin:40px">Выберите подходящий вам план:</h2>
+<section id="plan-back-div"></section>
+<section id="plan-div">
+    <div class="container">
+        <div class="col-sm-5 col-sm-offset-1">
+            <h4>Пополнить счет</h4>
+            <p>Приобретайте изображения в течение года <br />по цене правообладателя</p>
+            @using (Html.BeginForm("BuyPlanForm", "Home", FormMethod.Get)) {
+                <div>
+                    <input type = "radio" value = "s1" id = "s1" name = "radio_val" class="schet-radio" />
+                    <label for="s1">10$ - неограниченно</label>
+                </div>
+                <div>
+                    <input type="radio" value="s2" id="s2" name="radio_val" class="schet-radio" />
+                    <label for="s2">25$ - неограниченно</label>
+                </div>
+                <div>
+                    <input type="radio" value="s3" id="s3" name="radio_val" class="schet-radio" />
+                    <label for="s3">50$ - неограниченно</label>
+                </div>
+            
+            <input type="submit" class="btn btn-primary" value="Приобрести план"/>
+            }
+        </div>
+        <div class="col-sm-5">
+            <h4>Пакеты скачиваний</h4>
+            <p>Изображения в течение одного года <br />по фиксированной цене</p>
+            @using (Html.BeginForm("BuyPlanForm", "Home", FormMethod.Get))
+            {
+                <div>
+                    <input type="radio" value="p1" id="p1" name="radio_val" class="pac-radio" />
+                    <label for="p1">10 изображений - 49$  </label>
+                </div>
+                <div>
+                    <input type="radio" value="p2" id="p2" name="radio_val" class="pac-radio" />
+                    <label for="p2">25 изображений - 99$  </label>
+                </div>
+                <div>
+                    <input type="radio" value="p3" id="p3" name="radio_val" class="pac-radio" />
+                    <label for="p3">50 изображений - 179$</label>
+                </div>
+                <input type="submit" class="btn btn-primary" value="Приобрести план"/>
+            }
+        </div>
+    </div>
+</section>
+
+@section Scripts{
+    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.js")
+}

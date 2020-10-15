@@ -1,0 +1,67 @@
+CREATE TABLE [dbo].[Likes] (
+    [LikeId]     INT      IDENTITY (1, 1) NOT NULL,
+    [ImageId]    INT      NOT NULL,
+    [BuyingDate] DATETIME NOT NULL,
+    [UserId] NVARCHAR(128) NULL, 
+    CONSTRAINT [PK_dbo.Likes] PRIMARY KEY CLUSTERED ([LikeId] ASC)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE [dbo].[Orders] (
+    [OrderId]           INT            IDENTITY (1, 1) NOT NULL,
+    [ImageId]           INT            NOT NULL,
+    [ApplicationUserId] NVARCHAR (128) NULL,
+    [BuyerEmail]        NVARCHAR (MAX) NULL,
+    [Price]             FLOAT (53)     NOT NULL,
+    [Size]              INT            NOT NULL,
+    [BuyingDate]        DATETIME       NOT NULL,
+    CONSTRAINT [PK_dbo.Orders] PRIMARY KEY CLUSTERED ([OrderId] ASC),
+	CONSTRAINT [FK_dbo.Orders_dbo.AspNetUsers_ApplicationUserId] FOREIGN KEY ([ApplicationUserId]) REFERENCES [dbo].[AspNetUsers] ([Id])
+
+);
+
+GO
+CREATE NONCLUSTERED INDEX [IX_ApplicationUserId]
+    ON [dbo].[Orders]([ApplicationUserId] ASC);
+
+
+
+
+
+
+
+CREATE TABLE [dbo].[Orders] (
+    [OrderId]           INT            IDENTITY (1, 1) NOT NULL,
+    [ImageId]           INT            NOT NULL,
+    [ApplicationUserId] NVARCHAR (128) NULL,
+    [BuyerEmail]        NVARCHAR (MAX) NULL,
+    [Price]             FLOAT (53)     NOT NULL,
+    [Size]              INT            NOT NULL,
+    [BuyingDate]        DATETIME       NOT NULL,
+    CONSTRAINT [PK_dbo.Orders] PRIMARY KEY CLUSTERED ([OrderId] ASC),
+	CONSTRAINT [FK_dbo.Orders_dbo.AspNetUsers_ApplicationUserId] FOREIGN KEY ([ApplicationUserId]) REFERENCES [dbo].[AspNetUsers] ([Id]),
+	CONSTRAINT [FK_dbo.Orders_dbo.Images_ImageId] FOREIGN KEY ([ImageId]) REFERENCES [dbo].[Images] ([ImageId])
+
+);
+
+GO
+CREATE NONCLUSTERED INDEX [IX_ApplicationUserId]
+    ON [dbo].[Orders]([ApplicationUserId] ASC);
+CREATE NONCLUSTERED INDEX [IX_ImageId]
+    ON [dbo].[Orders]([ImageId] ASC);

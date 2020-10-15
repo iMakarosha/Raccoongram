@@ -5,14 +5,14 @@
             <h2>Все категории</h2>
             @foreach (var item in Model)
             {
-            <div class="col-sm-3 col-xs-2 img-descr-category">
+            <div class="col-sm-3 col-xs-6 img-descr-category">
                 <a href="/Home/PhotoGalery?category=@item.CategoryName">
                     <img src="~/Content/Content-image/@item.Url" onerror="this.src='/Content/Images/notFound.jpg'" />
                 </a>
                 <a href="/Home/PhotoGalery?category=@item.CategoryName">
 
                     <div class="name-descr-category">
-                        <p>@item.CategoryName</p>
+                        <p class="categ-text">@item.CategoryName</p>
 
                     </div>
                 </a>

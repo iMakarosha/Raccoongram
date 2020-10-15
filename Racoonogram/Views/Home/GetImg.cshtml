@@ -1,0 +1,11 @@
+﻿<div class="container">
+    <h2>Спасибо, что вы есть.</h2>
+    @if (ViewBag.ID != "no")
+    {
+    <a href="~/Content/downloads/@ViewBag.ID" download="" class="btn btn-primary">Скачать изображение!!!</a>
+    }
+    else
+    {
+        <p>@ViewBag.ISIMG</p>
+    }
+</div>

@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title – приложение ASP.NET</title>
+    <title>@ViewBag.Title – фотобанк Raccoonogram</title>
     @Styles.Render("~/Content/css")
     @Styles.Render("~/fonts/font-awesome/css/font-awesome.min.css")
     @Scripts.Render("~/bundles/modernizr")
@@ -19,7 +19,9 @@
                     <span class="icon-bar"></span>
                 </button>
                 <div id="logo" class="navbar-brand">
-                    <img alt="Brand" src='~/Content/Images/logo.jpg' />
+                    <a href="/">
+                        <img alt="Brand" src='~/Content/Images/logo.jpg' />
+                    </a>
                     @Html.ActionLink("Raccoonogram", "Index", "Home")
                 </div>
             </div>
@@ -39,30 +41,172 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-4">
+                    <h4>Raccoonogram - это...</h4>
+                    <p style="font-size: 12px;color: #aaa;text-align:left">фотобанк нового поколения: генерация описания изображений с помощью компьютерного зрения, удобный и точный поиск, качественный контент и оптимальные цены.</p>
+
+                </div>
+
+                <div class="col-sm-2">
                     <h4>Навигация</h4>
                     <ul>
                         <li>@Html.ActionLink("Raccoonogram", "Index", "Home")</li>
                         <li>@Html.ActionLink("Фотогалерея", "PhotoGalery", "Home")</li>
                         <li>@Html.ActionLink("Авторы", "UserSearch", "Home")</li>
-                        <li>@Html.ActionLink("Контакт", "Contact", "Home")</li>
+                        <li>@Html.ActionLink("О фотобанке", "About", "Home")</li>
+                        @*<li>@Html.ActionLink("Частые вопросы", "Questions", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>*@
+                        @using Microsoft.AspNet.Identity
+                        @if (Request.IsAuthenticated)
+                        {
+                            <li> @Html.ActionLink("Личный кабинет", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage" })</li>
+                        }
+                        else
+                        {
+                            <li>@Html.ActionLink("Вход в систему", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+                        }
+                        <li role="separator" class="divider"></li>
+                        <li>@Html.ActionLink("Поддержать проект", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+
                     </ul>
 
                 </div>
+                <div class="col-sm-2">
+                    <h4>Информация</h4>
+                    <ul>
+                        <li>@Html.ActionLink("Частые вопросы", "Questions", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+                        <li>@Html.ActionLink("Лицензия", "License", "Home")</li>
+                        <li>@Html.ActionLink("Соглашение", "Agreement", "Home")</li>
+                        <li>@Html.ActionLink("Планы", "BuyPlan", "Home")</li>
+
+                    </ul>
+
+                </div>
+
+                <div class="col-sm-4">
+                    <h4>Raccoonogram еще ближе</h4>
+                    @*<a href="http://www.odnoklassniki.ru/dk?st.cmd=addShare&st.s=1&st._surl=http://rishahochu.info/&st.comments=Детская одежда оптом - 'Родители и Дети'" target="_blank">
+                           <i class="fa fa-odnoklassniki" aria-hidden="true"></i>
+                        </a>
+                        <a href="https://twitter.com/share?url=http://rishahochu.info/&text=Детская одежда оптом - 'Родители и Дети'" target="_blank">
+                            <i class="fa fa-twitter" aria-hidden="true"></i>
+                        </a>
+                        <a href="http://vk.com/share.php?url=http://rishahochu.info/&title=Детская одежда оптом - 'Родители и Дети'&description=Вещи из стопроцентного хлопка по лучшим ценам от произоводителя.&noparse=true" target="_blank">
+                            <i class="fa fa-vk" aria-hidden="true"></i>
+                        </a>*@
+                    <div class="soc-btns">
+                        <a href="https://telegram.org/" target="_blank">
+                            <i class="fa fa-telegram" aria-hidden="true"></i>
+                        </a>
+                        <a href="https://twitter.com/?lang=ru" target="_blank">
+                            <i class="fa fa-twitter" aria-hidden="true"></i>
+                        </a>
+                        <a href="https://vk.com/" target="_blank">
+                            <i class="fa fa-vk" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                    <h4 style="margin-top: 18px;">Подпишись на рассылку</h4>
+                    <p style="font-size: 12px;color: #aaa;">Получай 5 бесплатных фото каждые 2 недели.</p>
+                    <div>
+                        @using (Ajax.BeginForm("ImageSearch", "Home", new AjaxOptions { UpdateTargetId = "fff" }, new { @class = "navbar-form", id = "emailSend", style = "padding:0" }))
+                        {
+                            <input type="email" id="getMail" name="email" placeholder="my-mail@gmail.ru" class="form-control" style="background-color:#eee;width:calc(100% - 35px);height: 30px;display:initial">
+                            <button type="submit" id="submit-search" value="" class="btn btn-default form-control" style="background-color:transparent;width: 30px;height: 30px;padding: 5px 5px 5px 4px;"><i class="fa fa-share" style="color:#fff"></i></button>
+                            <p id="fff"></p>
+                        }
+                    </div>
+                </div>
+
+
             </div>
             <div class="row">
-                <div class="col-xs-12">
-                    <p>&copy; 2017 - @DateTime.Now.Year – "Racoonogram", BabaskinaI ^-^</p>
-                </div>
+                <hr />
+                <p style="text-align:center">&copy; 2017 - @DateTime.Now.Year – "Racoonogram", Babaskina-i</p>
             </div>
         </div>
     </footer>
 
+
+
+
+    <!-- Modal -->
+    <div class="modal fade bs-example-modal-sm" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-share" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="border: none;padding: 25px 18px;">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 style="text-align:center" class="modal-title" >Скопируйте ссылку и поделитесь ею с друзьями</h4>
+
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <p style="margin-bottom: -5px;color:#ccc;padding-left: 20px;">СКОПИРУЙТЕ ССЫЛКУ</p>
+                        <div class="navbar-form" style="border-bottom: 2px solid #ccc;padding:0">
+                            <i class="fa fa-link fa-rotate-90"></i>
+                            <input type="text" id="ahref" style="width: calc(100% - 25px);border: none;" />
+                        </div>
+                        <div style="text-align:center">
+                            <button id="copy-href" style="margin: 20px;background-color: #eee;border: none;border-radius: 4px;padding: 10px;box-shadow: 1px 1px 3px #aaa;">СКОПИРОВАТЬ</button>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <p style="font-size: 12px;color: #999;margin-top: 10px;">Поделиться через соц.сети</p>
+                        <a id="shareOk" href="#" target="_blank">
+                            <i class="fa fa-odnoklassniki" aria-hidden="true"></i>
+                        </a>
+                        <a id="shareTw" href="#" target="_blank">
+                            <i class="fa fa-twitter" aria-hidden="true"></i>
+                        </a>
+                        <a id="shareVk" href="#" target="_blank">
+                            <i class="fa fa-vk" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+                @*<div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>*@
+            </div>
+        </div>
+    </div>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("Styles", required: false)
 
     @RenderSection("scripts", required: false)
-    
+
+    <script>
+        $("#copy-href").click(function (e) {
+            var copyHref = document.getElementById("ahref");
+            copyHref.focus();
+            copyHref.select();
+            try {
+                var success = document.execCommand('copy');
+                //console.log("is" + msg);
+            }
+            catch (err) { console.log("oups..."); }
+        });
+        $("#shareModal").on("show.bs.modal", function (e) {
+            var button = $(e.relatedTarget);
+            var imgId = button.data('whatever');
+            $(this).find("#ahref").val('https://localhost:44393/Home/ImagePreview/' + imgId);
+            document.getElementById("shareOk").href = "http://www.odnoklassniki.ru/dk?st.cmd=addShare&st.s=1&st._surl=https://localhost:44393/Home/ImagePreview/" + imgId + "&st.comments=Фотобанк изображений высокого качества Raccoonogram";
+            document.getElementById("shareTw").href = "https://twitter.com/share?url=https://localhost:44393/Home/ImagePreview/" + imgId + "&text=Фотобанк изображений высокого качества Raccoonogram";
+            document.getElementById("shareVk").href = "http://vk.com/share.php?url=https://localhost:44393/Home/ImagePreview/" + imgId + "&title=Фотобанк изображений высокого качества Raccoonogram";
+        });
+        if ((document.getElementById("main-page"))!==null) {
+            document.getElementById("u1").style.height = document.getElementById("main-page").clientHeight + "px";
+            document.getElementById("u2").style.height = document.getElementById("main-page").clientHeight + "px";
+            document.getElementById("u3").style.height = document.getElementById("main-page").clientHeight + "px";
+        }
+        $(window).resize(function () {
+            if ((document.getElementById("main-page")) !== null) {
+                document.getElementById("u1").style.height = document.getElementById("main-page").clientHeight + "px";
+                document.getElementById("u2").style.height = document.getElementById("main-page").clientHeight + "px";
+                document.getElementById("u3").style.height = document.getElementById("main-page").clientHeight + "px";
+            }
+        });
+    </script>
 </body>
 </html>

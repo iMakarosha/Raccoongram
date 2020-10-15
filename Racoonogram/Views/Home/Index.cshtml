@@ -12,8 +12,16 @@
     ViewBag.Title = "Home Page";
 }
 
-<section id="search-section" style="background-image: url('@ViewBag.BackImage')">
-    <div class="container-fluid" style="@ViewBag.MinHeight">
+<section id="search-section" style="position:relative" @*style="background-image: url('@ViewBag.BackImage')"*@>
+    <div id="carousel-example-generic" class="carousel fade carousel-fade" data-ride="carousel" data-interval = "5000">
+        <div class="carousel-inner">
+            <div class="item active" id="u1" style="background-image:url('@ViewBag.BackImage[0]');"></div>
+            <div class="item" id="u2" style="background-image:url('@ViewBag.BackImage[1]');"></div>
+            <div class="item" id="u3" style="background-image:url('@ViewBag.BackImage[2]');"></div>
+        </div>
+    </div>
+
+    <div class="container-fluid" style="position:absolute;top:0;" id="main-page">
         <div class="search-form">
             <h1>Racoonogram - живи ярко, наполняй цветом каждый день</h1>
             @*@using (Ajax.BeginForm("ImageSearch", "Home", new AjaxOptions { UpdateTargetId = "SearchResult" }, new { @class = "navbar-form form-search" }))*@
@@ -21,11 +29,11 @@
             @using (Html.BeginForm("PhotoGalery", "Home", FormMethod.Get, new { @class = "navbar-form form-search" }))
             {
                 <div class="input-group">
-                    <input type="text" id="input-string-query" name="querys" class="form-control" style="width:80%; height:40px;border-radius:4px" placeholder="Enter the word">
+                    <input type="text" id="input-string-query" name="querys" class="form-control" style="width:80%; border-radius:4px" placeholder="Enter the word">
                     <input type="submit" id="submit-search" value="" class="btn btn-default selectType" style="width:40px;">
                     <input type="hidden" id="submit-search-npage" name="page" value="1" />
                     <label for="submit-search"><i class="fa fa-search"></i></label>
-                    <div class="dropdown selectType">
+                    <div class="dropdown selectType" id="selectTypeMain">
                         <button class="btn btn-default dropdown-toggle" type="button" id="selectType" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                             <i id="selected-i" class="fa fa-camera-retro"></i>
                             <span class="caret"></span>
@@ -48,7 +56,7 @@
             </div>
         </div>
     </div>
-    <div class="descr-image-back">
+    @*<div class="descr-image-back">
         <p>
             @if (ViewBag.BackAuthor != null)
             {
@@ -57,7 +65,7 @@
             <span class="navbar-right">@ViewBag.likes <i class="fa fa-heart-o"></i></span>
         </p>
 
-    </div>
+    </div>*@
 </section>
 
 
@@ -70,19 +78,20 @@
 
             @foreach (Image d in ViewBag.Images)
             {
-                <div class="col-sm-4 img-descr-image">
-                    <a href="/Home/ImagePreview/@d.ImageId" target="_blank">
+                <div class="col-sm-4 col-xs-6 img-descr-image">
+                    <a href="/Home/ImagePreview/@d.ImageId">
                         <img src="~/Content/Content-image/@d.Url" onerror="this.src='/Content/Images/notFound.jpg'" />
                     </a>
                     <div class="descr-image">
-                        <p>
-                            @if (d.User != null)
+                        @if (d.User != null)
                             {
-                                <span>by: <a href="/Home/AuthorProfile/@d.User.Id" target="_blank">@d.User.UserName</a></span>
+                                <span>by: <a href="/Home/AuthorProfile/@d.User.Id">@d.User.UserName</a></span>
                             }
-                            <span class="navbar-right"><a href="#" class="aLike" id="@d.ImageId"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
-                        </p>
+                        </div>
+                    <div class="drop-buttons">
 
+                        <a href="#" class="aLike" id="@d.ImageId"><i class="fa fa-heart-o"></i></a>
+                        <a href="#shareModal" style="padding-right:9px" data-toggle="modal" data-whatever="@d.ImageId"><i class="fa fa-share-alt"></i></a>
                     </div>
                 </div>
 
@@ -94,73 +103,70 @@
 
 <section id="other-category">
     <div class="container">
-        <h2>Искать стало легче</h2>
-        <table border="0">
-            <tr>
-                <td class="col-sm-4 td-no-padding">
-                    <div class="img-descr-image">
-                        <img src="~/Content/Content-image/44.jpg" onerror="this.src='/Content/Images/notFound.jpg'" />
-                        <div class="descr-image-fixed">
-                            <p>
-                                @Html.ActionLink("Animals", "PhotoGalery", "Home", new { category = "animals" }, null)
-                                <span class="navbar-right"><a href="#" class="aLike" id="44"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
-                            </p>
+        <div class="row">
+            <h2>Искать стало легче</h2>
+            <div class="col-sm-4 col-xs-6">
+                <div class="img-descr-image">
+                    <img src="~/Content/Content-image/92_sm.jpg" onerror="this.src='/Content/Images/notFound.jpg'" id="big-img" />
+                    <div class="descr-image-fixed">
+                        <p>
+                            @Html.ActionLink("Fashion", "PhotoGalery", "Home", new { category = "fashion" }, null)
+                            <span class="navbar-right"><a href="#" class="aLike" id="92"><i class="fa fa-heart-o"></i></a></span>
+                        </p>
 
-                        </div>
                     </div>
-                </td>
-                <td class="col-sm-4 td-no-padding">
-                    <div class="img-descr-image">
-                        <img src="~/Content/Content-image/19.jpg" onerror="this.src='/Content/Images/notFound.jpg'" />
-                        <div class="descr-image-fixed">
-                            <p>
-                                @Html.ActionLink("Nature", "PhotoGalery", "Home", new { category = "nature" }, null)
-                                <span class="navbar-right"><a href="#" class="aLike" id="19"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
-                            </p>
+                </div>
+            </div>
+            <div class="col-sm-4 col-xs-6">
+                <div class="img-descr-image">
+                    <img src="~/Content/Content-image/69_sm.jpg" onerror="this.src='/Content/Images/notFound.jpg'" />
+                    <div class="descr-image-fixed">
+                        <p>
+                            @Html.ActionLink("Animals", "PhotoGalery", "Home", new { category = "animals" }, null)
+                            <span class="navbar-right"><a href="#" class="aLike" id="69"><i class="fa fa-heart-o"></i></a></span>
+                        </p>
 
-                        </div>
                     </div>
-                </td>
-                <td rowspan="2" class="col-sm-4 td-no-padding">
-                    <div class="img-descr-image">
-                        <img src="~/Content/Content-image/71.jpg" onerror="this.src='/Content/Images/notFound.jpg'" style="height: 498px;" />
-                        <div class="descr-image-fixed">
-                            <p>
-                                @Html.ActionLink("Fashion", "PhotoGalery", "Home", new { category = "fashion" }, null)
-                                <span class="navbar-right"><a href="#" class="aLike" id="71"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
-                            </p>
+                </div>
+            </div>
+            <div class="col-sm-4 col-xs-6">
+                <div class="img-descr-image">
+                    <img src="~/Content/Content-image/79_sm.jpg" onerror="this.src='/Content/Images/notFound.jpg'" />
+                    <div class="descr-image-fixed">
+                        <p>
+                            @Html.ActionLink("Nature", "PhotoGalery", "Home", new { category = "nature" }, null)
+                            <span class="navbar-right"><a href="#" class="aLike" id="79"><i class="fa fa-heart-o"></i></a></span>
+                        </p>
 
-                        </div>
                     </div>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-sm-4 td-no-padding">
-                    <div class="img-descr-image">
-                        <img src="~/Content/Content-image/27.jpg" onerror="this.src='/Content/Images/notFound.jpg'" />
-                        <div class="descr-image-fixed">
-                            <p>
-                                @Html.ActionLink("Portrait", "PhotoGalery", "Home", new { category = "portrait" }, null)
-                                <span class="navbar-right"><a href="#" class="aLike" id="27"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
-                            </p>
+                </div>
+            </div>
 
-                        </div>
-                    </div>
-                </td>
-                <td class="col-sm-4 td-no-padding">
-                    <div class="img-descr-image">
-                        <img src="~/Content/Content-image/35.jpg" onerror="this.src='/Content/Images/notFound.jpg'" />
-                        <div class="descr-image-fixed">
-                            <p>
-                                @Html.ActionLink("Sity", "PhotoGalery", "Home", new { category = "sity" }, null)
-                                <span class="navbar-right"><a href="#" class="aLike" id="35"><i class="fa fa-heart-o"></i></a><a href="#"><i class="fa fa-usd"></i></a></span>
-                            </p>
+            <div class="col-sm-4 col-xs-6">
+                <div class="img-descr-image">
+                    <img src="~/Content/Content-image/64_sm.jpg" onerror="this.src='/Content/Images/notFound.jpg'" />
+                    <div class="descr-image-fixed">
+                        <p>
+                            @Html.ActionLink("Portrait", "PhotoGalery", "Home", new { category = "portrait" }, null)
+                            <span class="navbar-right"><a href="#" class="aLike" id="64"><i class="fa fa-heart-o"></i></a></span>
+                        </p>
 
-                        </div>
                     </div>
-                </td>
-            </tr>
-        </table>
+                </div>
+            </div>
+            <div class="col-sm-4 col-xs-6">
+                <div class="img-descr-image">
+                    <img src="~/Content/Content-image/34_sm.jpg" onerror="this.src='/Content/Images/notFound.jpg'" />
+                    <div class="descr-image-fixed">
+                        <p>
+                            @Html.ActionLink("Sity", "PhotoGalery", "Home", new { category = "sity" }, null)
+                            <span class="navbar-right"><a href="#" class="aLike" id="34"><i class="fa fa-heart-o"></i></a></span>
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 </section>
@@ -171,7 +177,7 @@
 
         @foreach (var query in Model)
         {
-            <div class="col-md-3 hrefs-query">
+            <div class="col-md-3 col-sm-4 col-xs-6 hrefs-query">
                 <a href="/Home/PhotoGalery?querys=@query.QueryStr">@query.QueryStr</a>
             </div>
         }

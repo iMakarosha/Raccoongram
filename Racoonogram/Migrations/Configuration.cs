@@ -5,14 +5,14 @@ namespace Racoonogram.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<Racoonogram.Models.ApplicationDbContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<Racoonogram.Models.I_U_Models>
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = true;
+            AutomaticMigrationsEnabled = false;
         }
 
-        protected override void Seed(Racoonogram.Models.ApplicationDbContext context)
+        protected override void Seed(Racoonogram.Models.I_U_Models context)
         {
             //  This method will be called after migrating to the latest version.
 
