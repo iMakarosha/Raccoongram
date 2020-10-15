@@ -572,24 +572,24 @@ namespace Racoonogram.Controllers
             ViewBag.Logo = "/Content/User-logo/"+userAndImages.Id+".jpg";
 
 
-            userAndImages.userMoneys = db.PlanBuyings.Where(pb => pb.Id_user == userAndImages.Id && pb.MoneyBalance > 0).Select(pb => new UserMoney
-            {
-                MoneyBalance = Math.Round(pb.MoneyBalance, 2),
-                LastDate = pb.BuyingDate
-            }).FirstOrDefault();
-            if (userAndImages.userMoneys == null) userAndImages.userMoneys = new UserMoney { MoneyBalance=0 };
+            //userAndImages.userMoneys = db.PlanBuyings.Where(pb => pb.Id_user == userAndImages.Id && pb.MoneyBalance > 0).Select(pb => new UserMoney
+            //{
+            //    MoneyBalance = Math.Round(pb.MoneyBalance, 2),
+            //    LastDate = pb.BuyingDate
+            //}).FirstOrDefault();
+            //if (userAndImages.userMoneys == null) userAndImages.userMoneys = new UserMoney { MoneyBalance=0 };
 
-            userAndImages.plans = db.PlanBuyings.Where(pb => pb.Id_user == userAndImages.Id && pb.Id_plan.Contains("p")
-            && pb.isHide==0).Join(db.Plans, pb=>pb.Id_plan,b=>b.Id,(pb, b)=> new Plans
-            {
-                Id = pb.Id,
-                PlanId = pb.Id_plan,
-                isHide = pb.isHide,
-                BuyingDate = pb.BuyingDate,
-                ImageBalance = pb.ImageBalance,
-                StartImageBalance=b.ImgCount,
-                StartPrice = b.PlanPrice
-            }).ToList();
+            //userAndImages.plans = db.PlanBuyings.Where(pb => pb.Id_user == userAndImages.Id && pb.Id_plan.Contains("p")
+            //&& pb.isHide==0).Join(db.Plans, pb=>pb.Id_plan,b=>b.Id,(pb, b)=> new Plans
+            //{
+            //    Id = pb.Id,
+            //    PlanId = pb.Id_plan,
+            //    isHide = pb.isHide,
+            //    BuyingDate = pb.BuyingDate,
+            //    ImageBalance = pb.ImageBalance,
+            //    StartImageBalance=b.ImgCount,
+            //    StartPrice = b.PlanPrice
+            //}).ToList();
 
             return View(userAndImages);
         }
