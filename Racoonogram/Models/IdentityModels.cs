@@ -9,27 +9,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Racoonogram.Models
 {
-    // В профиль пользователя можно добавить дополнительные данные, если указать больше свойств для класса ApplicationUser. Подробности см. на странице https://go.microsoft.com/fwlink/?LinkID=317594.
-    //[MetadataType(typeof(AspNetUsers))]
-    //public class ApplicationUser : IdentityUser
-    //{
-    //    public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
-    //    {
-    //        // Обратите внимание, что authenticationType должен совпадать с типом, определенным в CookieAuthenticationOptions.AuthenticationType
-    //        var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
-    //        // Здесь добавьте утверждения пользователя
-    //        return userIdentity;
-    //    }
-
-    //    //connection
-    //    public virtual ICollection<Image> Images { get; set; }
-    //    public ApplicationUser()
-    //    {
-    //        Images = new List<Image>();
-    //    }
-
-    //}
-
     public class ApplicationUser : IdentityUser
     {
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
@@ -95,8 +74,6 @@ namespace Racoonogram.Models
         public DbSet<QueryHistory> QueryHistories { get; set; }
         public DbSet<Like> Likes { get; set; }
 
-        //public DbSet<ApplicationUser> Users { get; set; }
-
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
@@ -106,7 +83,5 @@ namespace Racoonogram.Models
         {
             return new ApplicationDbContext();
         }
-
-        //public System.Data.Entity.DbSet<Racoonogram.Models.ApplicationUser> ApplicationUsers { get; set; }
     }
 }
