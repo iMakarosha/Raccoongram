@@ -65,16 +65,10 @@ namespace Racoonogram.Controllers
             }
             else arrayImages[j] = "/Content/Images/help-back.jpg";
             
-                //if (backI.ApplicationUserId != null)
-                //{
-                //    ViewBag.BackAuthor = backI.User.UserName;
-                //    ViewBag.BackAuthorHref = backI.ApplicationUserId;
-                //}
             }
             ViewBag.BackImage = arrayImages;
-            //ViewBag.likes = db.Likes.Where(i => i.ImageId == 1).Select(i => i.LikeId).Count();
-
         }
+
         public JsonResult Like(int id)
         {
             try
@@ -103,7 +97,6 @@ namespace Racoonogram.Controllers
 
         public ActionResult AuthorProfile(string id="")
         {
-            // ApplicationUser user = db.Users.Select(u => u).Where(u => u.Id == id).FirstOrDefault();
             AuthorAndAllImages UserAndImages = new AuthorAndAllImages();
             UserAndImages.User = db.Users.Select(u => u).Where(u => u.Id == id).FirstOrDefault();
             IEnumerable<Image> allUserImages = db.Images.Where(i => i.ApplicationUserId == UserAndImages.User.Id).OrderByDescending(i => i.ImageId);
@@ -143,80 +136,10 @@ namespace Racoonogram.Controllers
         public ActionResult AllImUser()
         {
             return PartialView();
-            //int  pageSize= 12;
-            //try
-            //{
-            //    IEnumerable<Image> allimages = db.Images.Where(i => i.ApplicationUserId == "cbdbd8dc-eeab-43f3-89a9-123a8c525c5b").ToList();
-            //    foreach (Image i in allimages)
-            //    {
-            //        i.Url = i.ImageId + ".jpg";
-            //    }
-            //    //IEnumerable<Image> allimages = db.Images.Where(i => i.ApplicationUserId== "cbdbd8dc-eeab-43f3-89a9-123a8c525c5b").ToList();
-            //    //IEnumerable<Image> allImagesForPag = allimages.OrderBy(i => i.ImageId).Skip((1 - 1) * pageSize).Take(pageSize);
-
-
-            //    //if (allimages.Count() <= 0)
-            //    //{
-            //    //    return RedirectToRoute(new
-            //    //    {
-            //    //        controller = "Home",
-            //    //        action = "NotFound",
-            //    //        message = "Изображения данного автора не найдены"
-            //    //    });
-            //    //}
-
-
-            //    //foreach (Image i in allImagesForPag)
-            //    //{
-            //    //    i.Url = i.ImageId + ".jpg";
-            //    //}
-            //    //PageInfo pageInfo = new PageInfo { PageNumber =1, PageSize = pageSize, TotalItems = allimages.Count() };
-            //    //PaginationClass pagclass = new PaginationClass { PageInfoPag = pageInfo, ImagesPag = allImagesForPag };
-
-            //    //return PartialView(pagclass); ;
-            //    return PartialView(allimages);
-            //}
-            //catch (Exception ex)
-            //{
-            //    return HttpNotFound();
-            //}
-
-            //if (allimages.Count() <= 0)
-            //{
-            //    return RedirectToRoute(new
-            //    {
-            //        controller = "Home",
-            //        action = "NotFound",
-            //        message = "Изображения данного автора не найдены"
-            //    });
-            //}
-
-
-            //foreach (Image i in allImagesForPag)
-            //{
-            //    i.Url = i.ImageId + ".jpg";
-            //}
-            //PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems = allimages.Count() };
-            //PaginationClass pagclass = new PaginationClass { PageInfoPag = pageInfo, ImagesPag = allImagesForPag };
-
-            //return PartialView(pagclass);
         }
         public ActionResult UserSearch(int page = 1)
         {
             int pageSize = 24;
-            //var rolee = db.Roles.Where(r=>r.Id=="2").Select(r => r).FirstOrDefault();
-
-            //IEnumerable<UserSearch> users = db.Users.Where(q=>q.Roles.Contains(rolee)).Select(q => new UserSearch
-            //{
-            //    Id = q.Id,
-            //    UserName = q.UserName,
-            //    Site = q.Site,
-            //    CountPubl = q.Images.Select(i => i.ImageId).Count(),
-            //    CountFollow = (from l in db.Likes
-            //                   join i in db.Images on l.ImageId equals i.ImageId
-            //                   where i.ApplicationUserId == q.Id
-            //                   select l.LikeId).Count()
-            //}).OrderByDescending(i => i.UserName).Take(pageSize).ToList();
             IEnumerable<UserSearch> users = db.Users.Select(q => new UserSearch
             {
                 Id = q.Id,
@@ -247,8 +170,6 @@ namespace Racoonogram.Controllers
             PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems = db.Users.Select(i => i.UserName).Count() };
             PaginationClassForUsers pagclass = new PaginationClassForUsers { PageInfoPag = pageInfo, userSearches = users };
 
-
-
             GenereteRandomBack();
             return View(pagclass);
         }
@@ -267,13 +188,6 @@ namespace Racoonogram.Controllers
         [HttpPost]
         public ActionResult UserSearchPartial(string searchstring, string order, int page = 0)
         {
-            //if (searchstring == "" || searchstring==" ") {
-            //    return RedirectToRoute(new
-            //    {
-            //        controller = "Home",
-            //        action = "NotFound",
-            //        message = "Пустая строка запроса"
-            //    });  }
             IEnumerable<UserSearch> users;
             int pageSize = 16;
             switch (order)
@@ -336,7 +250,6 @@ namespace Racoonogram.Controllers
             PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems = db.Users.Where(i=>i.UserName.Contains(searchstring)).Select(i => i.UserName).Count() };
             PaginationClassForUsers pagclass = new PaginationClassForUsers { PageInfoPag = pageInfo, userSearches = users};
 
-
             return PartialView(pagclass);
         }
 
@@ -346,10 +259,6 @@ namespace Racoonogram.Controllers
         {
             GenereteRandomBack();
             ViewBag.MinHeight = "min-height: 200px;padding: 2% 10%;";
-            //int pageSize = 12;
-            //IEnumerable<Image> imagesPag = db.Images.Select(i => i).OrderBy(i=>i.ImageId).Skip((page - 1) * pageSize).Take(pageSize).ToList();
-            //PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems = db.Images.Select(i => i).Count() };
-            //PaginationClass pagclass = new PaginationClass { PageInfoPag = pageInfo, ImagesPag = imagesPag };
             if (category != "")
             {
                 ViewBag.GetString = "category";
@@ -361,20 +270,7 @@ namespace Racoonogram.Controllers
                 ViewBag.StringValue = querys;
 
             }
-            //else
-            //{
-            //    //var allCategory = db.Images.GroupBy(i => i.Category).Select(i = new { Name = j.Key, Count = j.Count() });
-            //    //а тут делаем поиск и получаем блоки категорий
-            //    var allCategory = db.Images.GroupBy(i => i.Category).Select(j=>new
-            //    {
-            //        categ = j.Key,
-            //        url = db.Images.Where(im=>im.Category==j.Key).Select(im=>im.ImageId).FirstOrDefault()+"_sm.jpg"
-            //    }).ToList();
-            //    ViewBag.TitleZ = "Популярные категории";
-            //    ViewBag.categories = allCategory;
-            //}
-
-            return View();//pagclass
+            return View();
         }
         public ActionResult GetCategories()
         {
@@ -387,16 +283,12 @@ namespace Racoonogram.Controllers
         }
 
 
-
-
-
         [HttpGet]
         public ActionResult ImagePreview(int id)
         {
             try
             {
                 Image image = db.Images.Select(i => i).Where(i => i.ImageId == id).FirstOrDefault();
-                // IEnumerable < Image > image = db.Images.Select(i => i).Where(i => i.ImageId == id).Take(1).ToList();
                 image.Url = image.ImageId + "_sm.jpg";
                 string[] keywords = image.KeyWords.Split(' ');
                 ViewBag.keywords = keywords;
@@ -454,7 +346,6 @@ namespace Racoonogram.Controllers
             }
             ViewBag.CountPages = images.Count();
             return PartialView(images);
-
         }
 
 
@@ -463,15 +354,6 @@ namespace Racoonogram.Controllers
         {
             IEnumerable<Image> allimages;
             int pageSize = Count;
-            //if (keywords == "" ||keywords==" ")
-            //{
-            //    return RedirectToRoute(new
-            //    {
-            //        controller = "Home",
-            //        action = "NotFound",
-            //        message = "Пустая строка запроса"
-            //    });
-            //}
             if (iscategory == "category")
             {
                 if (Colors == "IsBlack")

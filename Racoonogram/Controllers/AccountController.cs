@@ -301,7 +301,6 @@ namespace Racoonogram.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult ForgotPasswordConfirmation(ResetPasswordViewModel model, string keystr, string email)
         {
-            string s;
             if (ModelState.IsValid)
             {
                 var user = UserManager.FindByEmail(model.Email);
@@ -312,17 +311,6 @@ namespace Racoonogram.Controllers
                 }
                 UserManager.RemovePassword(user.Id);
                 UserManager.AddPassword(user.Id, model.Password);
-                //var user1 = UserManager.FindByEmail(model.Email);
-                //var result = UserManager.ResetPasswordAsync(user.Id.ToString(), model.Code.ToString(), model.Password);
-                //if (result.Succeeded)
-                //{
-                //    var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-                //    if (user != null)
-                //    {
-                //        await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-                //    }
-                //    return RedirectToAction("Index", new { Message = ManageMessageId.ChangePasswordSuccess });
-                //}
                 return RedirectToAction("Login");
             }
             else
@@ -330,22 +318,6 @@ namespace Racoonogram.Controllers
                 ViewBag.KeyString = keystr;
                 ViewBag.Email = email;
                 return View();
-                //int i = 0;
-                ////while (i<ModelState.Values.Count(){
-                //var jd = ModelState;
-                //foreach (var error in ModelState.Values) {
-                //    if (error.Errors.Count() > 0)
-                //    {
-                //        foreach(var err in error.Errors)
-                //        {
-                //            jd.AddModelError(err.ErrorMessage.ToString(), new Exception());
-                //        }
-                //    }
-                //    var rdsf = error.Errors;
-                //    //ModelState.AddModelError("", error);
-                //}
-                //ModelState = jd;
-                //ModelState.AddModelError();ViewBag.KeyString
             }
             
         }
@@ -578,7 +550,6 @@ namespace Racoonogram.Controllers
             {
                 return Redirect(returnUrl);
             }
-            //return RedirectToAction("Index", "Home");
             return RedirectToAction("Index", "Manage");
         }
 

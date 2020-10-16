@@ -83,10 +83,6 @@ namespace Racoonogram.Controllers
         {
             SelectList listOfCat = new SelectList(db.Images.GroupBy(i => i.Category).Select(group => new { Category = group.Key }).ToList(), "Category", "Category");
 
-            ////var listOfCat = from i in db.Images
-            //                group i by i.Category into j
-            //                orderby j
-            //                select new Categories { CategoryName = j.Key };
             ViewBag.List = listOfCat;
             string userid = User.Identity.GetUserId();
             IEnumerable<Racoonogram.Models.Image> images = db.Images.Select(i => i).Where(i => i.ApplicationUserId == userid).OrderByDescending(i => i.ImageId).ToList();
@@ -96,30 +92,6 @@ namespace Racoonogram.Controllers
             }
             return View(images);
         }
-        /*загрузка изображений*/
-        //[HttpPost]
-        //public JsonResult Upload(HttpPostedFileBase Upload)
-        //{
-        //    if (Upload != null)
-        //    {
-        //        string fileName = System.IO.Path.GetFileName(Upload.FileName);
-        //        Upload.SaveAs(Server.MapPath("~/Content/Content-image/" + fileName));
-        //    }
-        //    return Json("all good");
-        //}
-
-        //[HttpPost]
-        //public ActionResult Upload(string Category, string Price, HttpPostedFileBase Upload)
-        //{
-        //    if (Upload != null)
-        //    {
-        //        //получаем имя файла
-        //        string fileName = System.IO.Path.GetFileName(Upload.FileName);
-        //        //сохраняем файл в папку в проекте
-        //        Upload.SaveAs(Server.MapPath("~/Content/Content-image/" + fileName));
-        //    }
-        //    return RedirectToAction("Index");
-        //}
 
         [HttpPost]
         public ActionResult EditImage(string imneed)
@@ -157,10 +129,6 @@ namespace Racoonogram.Controllers
             db.SaveChanges();
             return RedirectToAction("Index");
         }
-
-
-
-
 
 
         /*проверка изображения искусственный интелект*/
@@ -223,7 +191,6 @@ namespace Racoonogram.Controllers
             {
                 contentString = e.Message;
                 return Json(contentString);
-                //return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(contentString);
             }
         }
 
@@ -320,9 +287,6 @@ namespace Racoonogram.Controllers
         public JsonResult Upload()
         {
             Racoonogram.Models.Image i = new Racoonogram.Models.Image();
-            //public JsonResult Upload(HttpFileCollection Files, string Category)
-            //{
-            //    foreach (string file in Files)
             if (Request.Form["Category"] == null || Request.Form["Category"] == "")
             {
                 return Json("! Поле 'Категория' является обязательным для заполнения");
@@ -337,7 +301,6 @@ namespace Racoonogram.Controllers
             {
                 i.Description = Request.Form["Description"].Substring(0, 1).ToUpper()+ Request.Form["Description"].Substring(1); 
             }
-            //var asdfl = Convert.ToDouble(Request.Form["Price"]);
             string Price = Request.Form["Price"];
             if (Price.IndexOf(".") >= 0) Price = Price.Replace('.', ',');
             if (Price == "" || !(Double.TryParse(Price, out double ass)))
@@ -375,10 +338,7 @@ namespace Racoonogram.Controllers
                         if (System.IO.File.Exists(newName))
                         {
                             System.IO.File.Delete(newName);
-                            //System.IO.File.Create(newName);
-                            //System.IO.File.Replace(fullPathName, newName, Server.MapPath("~/Content/Rez-copy/") + i.ImageId + ".jpg");
                         }
-                        //System.IO.File.Move(fullPathName, newName);
                         
                         System.Drawing.Image imNormal = System.Drawing.Image.FromFile(fullPathName);
                         imNormal.Save(newName);
@@ -423,14 +383,12 @@ namespace Racoonogram.Controllers
                     }
                 }
             }
-            //string cat = Request.Form[0];
             return Json("Изображения успешно загружены");
         }
 
         [HttpPost]
         public JsonResult DeletePhoto(string imid)
         {
-            //return Json("allgood");
             int ruh = Convert.ToInt32(Request.Form[0]);
             try
             {
@@ -440,7 +398,6 @@ namespace Racoonogram.Controllers
                 db.SaveChanges();
                 if (System.IO.File.Exists(Server.MapPath("~/Content/Content-image/") + ruh + ".jpg"))
                 {
-                    //System.IO.File.Delete(Server.MapPath("~/Content/Content-image/") + ruh + ".jpg");
                     System.IO.File.Delete(Server.MapPath("~/Content/Content-image/") + ruh + "_normal.jpg");
                     System.IO.File.Delete(Server.MapPath("~/Content/Content-image/") + ruh + "_sm.jpg");
 
@@ -452,7 +409,6 @@ namespace Racoonogram.Controllers
             {
                 return Json(ex.Message);
             }
-
         }
 
         public ActionResult Index()
@@ -571,26 +527,6 @@ namespace Racoonogram.Controllers
             }).OrderByDescending(j => j.CountThisSearch).Take(5).ToList();
             ViewBag.Logo = "/Content/User-logo/"+userAndImages.Id+".jpg";
 
-
-            //userAndImages.userMoneys = db.PlanBuyings.Where(pb => pb.Id_user == userAndImages.Id && pb.MoneyBalance > 0).Select(pb => new UserMoney
-            //{
-            //    MoneyBalance = Math.Round(pb.MoneyBalance, 2),
-            //    LastDate = pb.BuyingDate
-            //}).FirstOrDefault();
-            //if (userAndImages.userMoneys == null) userAndImages.userMoneys = new UserMoney { MoneyBalance=0 };
-
-            //userAndImages.plans = db.PlanBuyings.Where(pb => pb.Id_user == userAndImages.Id && pb.Id_plan.Contains("p")
-            //&& pb.isHide==0).Join(db.Plans, pb=>pb.Id_plan,b=>b.Id,(pb, b)=> new Plans
-            //{
-            //    Id = pb.Id,
-            //    PlanId = pb.Id_plan,
-            //    isHide = pb.isHide,
-            //    BuyingDate = pb.BuyingDate,
-            //    ImageBalance = pb.ImageBalance,
-            //    StartImageBalance=b.ImgCount,
-            //    StartPrice = b.PlanPrice
-            //}).ToList();
-
             return View(userAndImages);
         }
 
@@ -604,16 +540,10 @@ namespace Racoonogram.Controllers
                 return Json("<b style='color:red'>Поле Email обязательно для заполнения</b>");
             if (optradio == null || optradio == "")
                 return Json("<b style='color:red'>Выберите размер загружаемой фотографии</b>");
-            //if(активных планов нет то ... ){ } else{ 
             int size = Convert.ToInt32(optradio.Substring(0, optradio.Length - 2));
             try
             {
                 Order orders = db.Orders.Where(o => o.BuyerEmail == email && o.ImageId == ImageId && o.Size == size).Select(o => o).FirstOrDefault();
-                //string path = Server.MapPath("/Content/Content-image/" + ImageId + ".jpg");
-                //byte[] mas = System.IO.File.ReadAllBytes(path);
-                //string file_type = "application/jpg";
-                //string file_name = "Raccoonogram_im.jpg";
-                //return File(mas, file_type, file_name);
                 if (orders == null)
                 {
                     string idOfImg = GetFile(ImageId, size);
@@ -642,7 +572,6 @@ namespace Racoonogram.Controllers
 
                         db.SaveChanges();
                         return sendHrefImg(email, size, idOfImg);
-
                     }
                 }
                 else
@@ -729,7 +658,6 @@ namespace Racoonogram.Controllers
                     }
                 }
 
-                //string file_type = "application/jpg";
                 string file_name = System.Web.Hosting.HostingEnvironment.MapPath("~/Content/downloads/") + sb.ToString() + ".jpg";
                 iii.Save(file_name);
                 return sb.ToString();
@@ -789,9 +717,6 @@ namespace Racoonogram.Controllers
             return Json("error");
         }
 
-
-
-
         //СТАТИСТИКА
         public ActionResult Statistics()
         {
@@ -840,7 +765,6 @@ namespace Racoonogram.Controllers
                 List<string> buyersSum = new List<string>();
                 int q = 0;
                 double sum = 0;
-                //statisticsMy.bestBuyers = buyers.GroupBy(e=>e.Email);
                 foreach (var item in buyersEmail)
                 {
                     q++;
@@ -896,10 +820,6 @@ namespace Racoonogram.Controllers
         }
 
 
-
-
-
-
         public ActionResult StatisticsBuyLike(string orderBy1 = "", string orderBy2 = "", string orderBy3 = "", string tab = "f1", string count="10")//async
         {
             IEnumerable<StatisticsBuyLike> buyLikes;
@@ -911,32 +831,6 @@ namespace Racoonogram.Controllers
             switch (tab) {
                 case "f2":
                     switch (orderBy1){
-                        //case "По стоимости":
-                        //    buyLikes = db.Orders.Where(i => i.ApplicationUserId == userid).GroupBy(i => i.Price).Select(j => new StatisticsBuyLike
-                        //    {
-                        //        Var1 = j.Key.ToString(),
-                        //        integer = j.Key,
-                        //        Id = db.Images.Where(im => im.ApplicationUserId == userid && im.Price == j.Key).Select(im => im.ImageId).FirstOrDefault(),
-                        //        Var2 = db.Orders.Where(im => im.ApplicationUserId == userid && im.Price == j.Key).Select(im => im.ImageId).Count().ToString(),
-                        //        Var3 = db.Orders.Where(o => o.ApplicationUserId==userid && o.ImageId == j.Key).Select(o => o.OrderId).Count().ToString(),
-                        //        Date = db.Orders.Where(o => o.ApplicationUserId == userid && o.ImageId == j.Key).Select(o => o.BuyingDate).OrderByDescending(o => o).FirstOrDefault()
-                        //    }).ToList();
-                        //    foreach(var item in buyLikes)
-                        //    {
-                        //        item.Url = "/Content/Content-image/" + item.Id + "_xs.jpg";
-                        //    }
-                        //    if (orderBy2 == "По убыванию")
-                        //    {
-                        //        buyLikes = buyLikes.OrderByDescending(i => i.integer);
-                        //    }
-                        //    else
-                        //    {
-                        //        buyLikes = buyLikes.OrderBy(i => i.integer);
-                        //    }
-                        //    ViewBag.th2 = "Стоимость"; ViewBag.th3 = "Количество скачанных картинок"; ViewBag.th4 = "Кол-во скачиваний"; ViewBag.th5 = "Дата посл. покупки";
-                        //    ViewBag.count = 5;
-                        //    break;
-
                         case "По дате":
                             var s1 = db.Orders.Where(i => i.ApplicationUserId == userid).GroupBy(i => i.BuyingDate).Select(i => i.Key);
                             List<DateTime> dates = new List<DateTime>();
@@ -1023,7 +917,6 @@ namespace Racoonogram.Controllers
                     }
                     break;
                 case "f3":
-
                      switch (orderBy3)
                     {
                         case "По ID картинки":
@@ -1047,15 +940,6 @@ namespace Racoonogram.Controllers
                             buyLikes = statistics;
                             ViewBag.th2 = "Категория"; ViewBag.th3 = "Кол-во лайков"; ViewBag.th4 = "Дата посл.лайка";
                             ViewBag.count = 4;
-
-                            //if (orderBy2 == "По убыванию")
-                            //{
-                            //    buyLikes = buyLikes.OrderByDescending(i => i.Id);
-                            //}
-                            //else
-                            //{
-                            //    buyLikes = buyLikes.OrderBy(i => i.Id);
-                            //}
                             break;
                         case "По категориям":
                             statistics = new List<StatisticsBuyLike>();
@@ -1098,14 +982,6 @@ namespace Racoonogram.Controllers
                                             Var2 = 1.ToString(),
                                 Date = l.BuyingDate
                             }).ToList();
-                            //if (orderBy2 == "По убыванию")
-                            //{
-                            //    buyLikes = buyLikes.OrderByDescending(i => i.Id);
-                            //}
-                            //else
-                            //{
-                            //    buyLikes = buyLikes.OrderBy(i => i.Id);
-                            //}
                             ViewBag.th2 = "Категория"; ViewBag.th3 = "Дата лайка";
                             ViewBag.count = 2;
                             break;
@@ -1135,7 +1011,6 @@ namespace Racoonogram.Controllers
                             else buyLikes = buyLikes.OrderBy(j => j.Id);
                             break;
                     }
-                    //ViewBag.count = 4;
                     break;
                 default:
                     {
@@ -1148,10 +1023,6 @@ namespace Racoonogram.Controllers
                             Var3 = j.Price.ToString(),
                             Date = j.BuyingDate
                         }).OrderByDescending(o => o.Date);
-                        //foreach (var item in buyLikes)
-                        //{
-                        //    item.Url = "/Content/Content-image/" + item.Id + "_xs.jpg";//так делать нельзя!!! Надо сделать новую модель!!!
-                        //}
                         if (orderBy1 != "" || orderBy2 != "")
                         {
                             switch (orderBy1)
@@ -1207,7 +1078,6 @@ namespace Racoonogram.Controllers
                 List<string> buyersEmail = db.Orders.Where(o => o.ApplicationUserId == userId).GroupBy(o => o.BuyerEmail).OrderBy(o => o.Count()).Select(j => j.Key).ToList();
                 List<string> buyersSum = new List<string>();
                 List<string> buyersCount = new List<string>();
-                //statisticsMy.bestBuyers = buyers.GroupBy(e=>e.Email);
                 foreach (var item in buyersEmail)
                 {
                     BestBuyers b = new BestBuyers();
@@ -1230,7 +1100,6 @@ namespace Racoonogram.Controllers
         {
             return PartialView();
         }
-
 
         /*common top modals*/
         public ActionResult BestImCarousel(string typeHD= "heart")//async
@@ -1319,8 +1188,6 @@ namespace Racoonogram.Controllers
             bestAuthors.bestUsersDownload = bestUsersDownload;
             return PartialView(bestAuthors);
         }
-
-
 
         //
         // GET: /Manage/Index
@@ -1516,15 +1383,7 @@ namespace Racoonogram.Controllers
                     if (System.IO.File.Exists(newName))
                     {
                         System.IO.File.Delete(newName);
-                        //System.IO.File.Create(newName);
-                        //System.IO.File.Replace(fullPathName, newName, Server.MapPath("~/Content/Rez-copy/") + i.ImageId + ".jpg");
                     }
-                    //System.IO.File.Move(fullPathName, newName);
-
-
-                    //System.Drawing.Image mi = System.Drawing.Image.FromFile(@"C:\Users\SuperUser1\Pictures\1920ивыше\2.jpg");
-                    //System.Drawing.Image img = RezizeImage(mi, 103, 32);
-                    //img.Save("IMAGELOCATION.png", System.Drawing.Imaging.ImageFormat.Jpeg);
                     System.Drawing.Image imNormal = System.Drawing.Image.FromFile(fullPathName);
                     imNormal = RezizeImage(imNormal, 300);
                     imNormal.Save(newName);
@@ -1581,25 +1440,10 @@ namespace Racoonogram.Controllers
                 Additionally = us.Additionally,
                 Status = us.Status
             }).Where(u => u.Id == sasdf).FirstOrDefault();
-            //if (System.IO.File.Exists(Server.MapPath("~/Content/User-logo/" + applicationUser.Id + ".jpg"))){
                 ViewBag.Logo = "/Content/User-logo/" + applicationUser.Id + ".jpg";
-            //}
-            //else
-            //{
-            //    ViewBag.Logo = "/Content/User-logo/raccoon.jpg";
-            //}
             return View(applicationUser);
         }
         
-        //public ActionResult ChangeProfile()
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return View(model);
-        //    }
-        //}
-
-
 
         //
         // GET: /Manage/ChangePassword
@@ -1720,8 +1564,6 @@ namespace Racoonogram.Controllers
 
             base.Dispose(disposing);
         }
-
-
 
 
         /*сжатие изображений image compress*/
