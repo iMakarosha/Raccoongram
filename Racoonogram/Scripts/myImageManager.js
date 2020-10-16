@@ -1,6 +1,4 @@
 ﻿{
-
-
         $("#editModal").on("show.bs.modal", function (event) {
         var button = $(event.relatedTarget);
         var rec = button.data('whatever');
@@ -9,10 +7,6 @@
         $("#partForm").submit();
     });
     
-
-
-
-
 
     var deleteIndex = 0;
 
@@ -117,10 +111,6 @@
                         console.log(status);
                         console.log(p3);
                         alert("Ошибка!");
-                        //if (xhr.status === "500") {
-                        //    document.getElementById("block-errors").innerHTML = "Размер загружаемых изображений превысил установленный лимит в 12МБ";
-                        //}
-
                     }
                 });
             }
@@ -130,16 +120,6 @@
             }
         }
 
-    //        if (imageI.naturalHeight < 1920 && imageI.naturalWidth < 1920) {
-    //    document.getElementById(imageI.id).parentElement.remove();
-    //li = document.createElement("li");
-    //            li.innerHTML = "Нельзя загрузить изображение " + Store.files[deleteIndex].name +
-    //                ", так как его ширина и высота меньше 1920 пикселей.";
-    //            document.getElementById("listOfErr").appendChild(li);
-    //            removeFile(deleteIndex);
-    //        } else {
-    //    deleteIndex++;
-    //}
         };
 
         var Store = {files: [] } /* какое-то хранищие файлов, для примера так*/
@@ -162,8 +142,6 @@
             var reader = new FileReader();
             reader.onload = (function (theFile) {
 
-
-
                 return function (e) {
                     // Render thumbnail.
                     $("#list").css("display", "none");
@@ -171,9 +149,6 @@
                     li = document.createElement("div");
                     li.innerHTML = "<img id='im-client' onload='recheckI(this);' src='" + e.target.result + "' />";
                     document.getElementById('list').appendChild(li);
-                    //document.getElementById('logo-img').src = e.target.result;
-                    //$s = document.getElementById('logo-img').width;
-                    //$('#logo-img').css("height", $s)
                     
                 };
             })(f);
@@ -181,53 +156,6 @@
             reader.readAsDataURL(f);
         }
 
-
-    //    document.getElementById("listOfErr").innerHTML = ""
-    //        // если не выбрали файл и нажали отмену, то ничего не делать
-    //        if (!e.target.files.length) {
-    //            return ;
-    //        }
-    //        $id = ""; var ident = 0;
-    //        document.getElementById('list').innerHTML = "";
-    //        Store.files.splice(0, Store.files.length);
-
-    //        // создаем новый массив с нашими файлами
-    //        const files = Object.keys(e.target.files).map((i) => e.target.files[i]);//e.target.files??
-    //        deleteIndex = 0;
-    //        addFiles(files);
-    //        var count = files.length;
-    //        var fr = new FileReader, i = 0;
-    //        $f = 0;
-    //        fr.onload = function (e) {
-
-    //            var li;
-    //            if (file.type.match('image.*')) {
-    //    li = document.createElement("div");
-    //if (count > 1) {
-    //    li.classList = "col-md-4 col-sm-4 col-xs-6 img-descr-image";
-    //}
-    //                else {
-    //    li.classList = "col-md-12 img-descr-image";
-    //}
-    //                li.innerHTML = "<img id='im-client" + $f + "' onload='recheckI(this);' src='" + e.target.result + "' />";
-    //                document.getElementById('list').appendChild(li);
-
-    //            }
-    //            file = files[++i];
-    //            if (file) {
-    //    fr.readAsDataURL(file);
-    //} else {
-    //    i = 0;
-    //}
-    //            $f++;
-    //        }
-    //            file = files[i];
-    //            if (files) {
-    //                while (i < files.length && !file.type.match('image.*')) {
-    //    file = files[++i];
-    //}
-    //                if (file) fr.readAsDataURL(files[i]);
-    //        }
         }
 
             function addFiles(files) {

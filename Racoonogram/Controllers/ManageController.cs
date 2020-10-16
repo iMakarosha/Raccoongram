@@ -826,8 +826,7 @@ namespace Racoonogram.Controllers
             string userid = User.Identity.GetUserId();
             StatisticsBuyLike statisticsBuyLike = new StatisticsBuyLike();
             //если есть упорядочивание
-            
-            
+                       
             switch (tab) {
                 case "f2":
                     switch (orderBy1){
@@ -917,7 +916,7 @@ namespace Racoonogram.Controllers
                     }
                     break;
                 case "f3":
-                     switch (orderBy3)
+                    switch (orderBy3)
                     {
                         case "По ID картинки":
                             List<StatisticsBuyLike> statistics = new List<StatisticsBuyLike>();
@@ -987,7 +986,6 @@ namespace Racoonogram.Controllers
                             break;
 
                     }
-
                     switch (orderBy1)
                     {
                         case "По категории":

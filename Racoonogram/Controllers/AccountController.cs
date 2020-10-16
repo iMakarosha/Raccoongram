@@ -217,27 +217,6 @@ namespace Racoonogram.Controllers
                 }
                 else
                 {
-                    //SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", 465);
-                    //smtpClient.Credentials = new NetworkCredential("Raccoonogram.help@gmail.com", "eenot549/xa");
-
-                    //MailAddress to = new MailAddress("Irishka.babaskina.1999@yandex.ru");
-                    //MailAddress from = new MailAddress("Raccoonogram.help@gmail.com", "Raccoonogram фотобанк");
-                    //MailMessage message = new MailMessage(from, to);
-                    //message.Subject = "Восстановление пароля - фотобанк Racconogram";
-                    //message.Body = user.UserName+"<a href='https://med.cbomk.ru'></a>";
-                    //smtpClient.EnableSsl = true;
-                    //smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-                    //smtpClient.UseDefaultCredentials = true;
-                    //try
-                    //{
-                    //    smtpClient.Send(message);
-                    //    return View("ForgotPasswordConfirmation");
-                    //}
-                    //catch(Exception ex)
-                    //{
-                    //    ViewBag.ex = ex;
-                    //    return View(model);
-                    //}
                     string code = "";
                     Random r = new Random();
                     char[] charArray = new char[72];
@@ -296,6 +275,17 @@ namespace Racoonogram.Controllers
         {
             return View();
         }
+
+        //
+        // GET: /Account/ForgotPasswordConfirmation
+        [AllowAnonymous]
+        public ActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+
+        //
+        // POST: /Account/ResetPassword
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -321,15 +311,7 @@ namespace Racoonogram.Controllers
             }
             
         }
-
-        //
-        // GET: /Account/ForgotPasswordConfirmation
-        [AllowAnonymous]
-        public ActionResult ForgotPasswordConfirmation()
-        {
-            return View();
-        }
-
+              
         //
         // GET: /Account/ResetPassword
         [AllowAnonymous]

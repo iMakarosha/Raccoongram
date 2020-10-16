@@ -118,14 +118,12 @@
                         <div id="Download" class="tab-pane fade in active" style="padding:0 30px">
                             <div class="row">
                                 @using (Ajax.BeginForm("StatisticsBuyLike", "Home", new AjaxOptions { UpdateTargetId = "my_common_buy_like_modal_id1" }, new { id = "modalformorder1", @class = "navbar-form form-search" }))
-    {
+                            {
                             <input type="hidden" id="f11" name="orderBy1" value="По дате" />
                             <input type="hidden" id="f12" name="orderBy2" value="По убыванию" />
                             <input type="hidden" id="f14" name="count" value="10" />
-
                             <input type="hidden" name="tab" value="f1" />
-}
-
+                            }
                                 <p>Упорядочить:</p>
                                 <div class="navbar-left" style="margin-bottom:20px">
                                     <div class="btn-group">
@@ -139,8 +137,6 @@
                                             <li class="selectTypeLeftLi f11" id="d3" style="cursor:pointer">По размеру</li>
                                             <li class="selectTypeLeftLi f11" id="d4" style="cursor:pointer">По e-mail</li>
                                             <li class="selectTypeLeftLi f11" id="d5" style="cursor:pointer">По Id картинки</li>
-
-
                                         </ul>
                                     </div>
 
@@ -171,20 +167,13 @@
                                             <li class="selectTypeLeftLi f14" id="w12" style="cursor:pointer">20</li>
                                             <li class="selectTypeLeftLi f14" id="w13" style="cursor:pointer">50</li>
                                             <li class="selectTypeLeftLi f14" id="w14" style="cursor:pointer">Все</li>
-
                                         </ul>
                                     </div>
-
                                 </div>
-
-
                             </div>
                             <div id="my_common_buy_like_modal_id1">
-
                             </div>
-
                         </div>
-
 
                         <div id="DownloadsG" class="tab-pane fade" style="padding:0 30px">
                             <div class="row">
@@ -519,15 +508,6 @@
     }
     google.setOnLoadCallback(my_common_downloaders);
 
-    //function dfasdfl() {
-    //    var sfl = "[['Email', 'Кол-во'],";
-    //    $(".input-hidden").each(function () {
-    //        sfl += "['" + this.name + "'," + this.value + "],";
-    //    });
-    //    sfl = sfl.slice(0, -1);
-    //    return sfl + "]";
-    //}
-
 
     function my_common_money() {
         var data = google.visualization.arrayToDataTable([
@@ -546,11 +526,6 @@
         chart.draw(data, options);
     }
         google.setOnLoadCallback(my_common_money);
-
-
-
-
-
 
 
 

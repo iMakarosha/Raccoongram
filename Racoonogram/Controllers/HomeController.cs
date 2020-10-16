@@ -439,7 +439,6 @@ namespace Racoonogram.Controllers
             return View();
         }
 
-
         public ActionResult Questions()
         {
             ViewBag.Message = "Questions";
