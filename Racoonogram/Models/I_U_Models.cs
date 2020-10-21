@@ -59,6 +59,12 @@ namespace Racoonogram.Models
 
     }
 
+    public class UserIdAndEmail
+    {
+        public string Id { get; set; }
+        public string Email { get; set; }
+    }
+
     public class AuthorAndAllImages
     {
         public ApplicationUser User { get; set; }
@@ -166,6 +172,11 @@ namespace Racoonogram.Models
         public string Url { get; set; }
     }
 
+    public class CategoryListItem
+    {
+        public string CategoryName { get; set; }
+    }
+
 
     public class PageInfo
     {
@@ -270,6 +281,12 @@ namespace Racoonogram.Models
 
         public int LikesCount { get; set; }
 
+    }
+
+    public class BestImagesCount
+    {
+        public int Name { get; set; }
+        public int Count { get; set; }
     }
     /*для лучших пользователей*/
     public class BestAuthors

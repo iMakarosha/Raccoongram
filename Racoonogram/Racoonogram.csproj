@@ -198,6 +198,11 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Handlers\AccountHandler.cs" />
+    <Compile Include="Handlers\HomeHandler.cs" />
+    <Compile Include="Handlers\ImageHandler.cs" />
+    <Compile Include="Handlers\StatisticHandler.cs" />
+    <Compile Include="Handlers\UserHandlers.cs" />
     <Compile Include="Helpers\PageHelpers.cs" />
     <Compile Include="Migrations\201805022015094_dataMigration.cs" />
     <Compile Include="Migrations\201805022015094_dataMigration.Designer.cs">
@@ -209,6 +214,9 @@
     <Compile Include="Models\I_U_Models.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\ImageService.cs" />
+    <Compile Include="Services\PlanService.cs" />
+    <Compile Include="Services\UserService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -7,18 +7,16 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using Racoonogram.Models;
+using Racoonogram.Services;
 
 namespace Racoonogram.Controllers
 {
     public class ImagesController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-
         // GET: Images
         public ActionResult Index()
         {
-            var images = db.Images.Include(i => i.User);
-            return View(images.ToList());
+            return View(new ImageService().GetImages().ToList());
         }
 
         // GET: Images/Details/5
@@ -28,7 +26,7 @@ namespace Racoonogram.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Image image = db.Images.Find(id);
+            Image image = new ImageService().GetImage(id);
             if (image == null)
             {
                 return HttpNotFound();
@@ -39,7 +37,7 @@ namespace Racoonogram.Controllers
         // GET: Images/Create
         public ActionResult Create()
         {
-            ViewBag.ApplicationUserId = new SelectList(db.Users, "Id", "Email");
+            ViewBag.ApplicationUserId = new UserService().GetUsers();
             return View();
         }
 
@@ -52,12 +50,11 @@ namespace Racoonogram.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Images.Add(image);
-                db.SaveChanges();
+                new ImageService().AddImage(image);
                 return RedirectToAction("Index");
             }
 
-            ViewBag.ApplicationUserId = new SelectList(db.Users, "Id", "Email", image.ApplicationUserId);
+            ViewBag.ApplicationUserId = new UserService().GetUsers(image.ApplicationUserId);
             return View(image);
         }
 
@@ -68,12 +65,12 @@ namespace Racoonogram.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Image image = db.Images.Find(id);
+            Image image = new ImageService().GetImage(id);
             if (image == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.ApplicationUserId = new SelectList(db.Users, "Id", "Email", image.ApplicationUserId);
+            ViewBag.ApplicationUserId = new UserService().GetUsers(image.ApplicationUserId);
             return View(image);
         }
 
@@ -86,11 +83,10 @@ namespace Racoonogram.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(image).State = EntityState.Modified;
-                db.SaveChanges();
+                new ImageService().ModifyImage(image);
                 return RedirectToAction("Index");
             }
-            ViewBag.ApplicationUserId = new SelectList(db.Users, "Id", "Email", image.ApplicationUserId);
+            ViewBag.ApplicationUserId = new UserService().GetUsers(image.ApplicationUserId);
             return View(image);
         }
 
@@ -101,7 +97,7 @@ namespace Racoonogram.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Image image = db.Images.Find(id);
+            Image image = new ImageService().GetImage(id);
             if (image == null)
             {
                 return HttpNotFound();
@@ -114,9 +110,7 @@ namespace Racoonogram.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Image image = db.Images.Find(id);
-            db.Images.Remove(image);
-            db.SaveChanges();
+            new ImageService().DeleteImage(id);
             return RedirectToAction("Index");
         }
 
@@ -124,7 +118,7 @@ namespace Racoonogram.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                new ImageService().Dispose();
             }
             base.Dispose(disposing);
         }

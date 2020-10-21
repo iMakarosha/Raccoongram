@@ -5,7 +5,8 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Racoonogram.Models;
-
+using Racoonogram.Handlers;
+using Racoonogram.Services;
 
 using System.Net;
 using System.Net.Mail;
@@ -18,74 +19,22 @@ namespace Racoonogram.Controllers
     /**/
     public class HomeController : Controller
     {
-        ApplicationDbContext db = new ApplicationDbContext();
-        I_U_Models iumodel = new I_U_Models();
+
         public ActionResult Index()
         {
-            IEnumerable<Image> l = db.Images.Select(i => i).OrderByDescending(i => i.Date).Take(12).ToList();
-            GenereteRandomBack();
-            foreach (Image i in l)
-            {
-                i.Url = i.ImageId + "_sm.jpg";
-            }
-            ViewBag.Images = l;
-            IQueryable<Querys> q = (from f in db.QueryHistories
-                                   group f by f.QuerySting into j
-                                   select new Querys() {  QueryStr = j.Key }).Take(30);
-
+            ViewBag.BackImage = new ImageHandler().GenereteRandomBack();
+            ViewBag.Images = new HomeHandler().GetMainpageImages();
+            IQueryable<Querys> q = new UserService().GetPopularQuerys();
             ViewBag.MinHeight = "padding: 15%;";
             return View(q);
         }
-
-        private void GenereteRandomBack()
-        {
-            Random r = new Random();
-            int rand; /*Image backI;*/
-            string[] arrayImages = new string[3];
-            int[] l = new int[3] { 0, 0, 0 };
-            var bestImages = (from f in db.Likes
-                              group f by f.ImageId into j
-                              select new
-                              {
-                                  name = j.Key,
-                                  count = db.Likes.Where(i => i.ImageId == j.Key).Select(i => i.LikeId).Count()
-                              }).OrderByDescending(j => j.count).Take(15).ToList();
-            for (int j = 0; j < 3; j++)
-            {
-            gotome: rand = r.Next(0, bestImages.Count()-1);
-            rand = Convert.ToInt32(bestImages[rand].name);
-            if (System.IO.File.Exists(Server.MapPath("~/Content/Content-image/" + rand + ".jpg")))
-            {
-                    if (l[0] != rand && l[1] != rand)
-                    {
-                        arrayImages[j] = "/Content/Content-image/" + rand + ".jpg";
-                        l[j] = rand;
-                    }
-                    else goto gotome;
-            }
-            else arrayImages[j] = "/Content/Images/help-back.jpg";
-            
-            }
-            ViewBag.BackImage = arrayImages;
-        }
+        
 
         public JsonResult Like(int id)
         {
             try
             {
-                Like l = new Like
-                {
-                    BuyingDate = DateTime.Now,
-                    ImageId = id
-                };
-                if (User.Identity.IsAuthenticated)
-                {
-                    string name = User.Identity.Name;
-                    l.UserId = db.Users.Where(u => u.UserName == name).Select(u=>u.Id).FirstOrDefault();
-                }
-                db.Likes.Add(l);
-           
-                db.SaveChanges();
+                new UserHandlers().Like(id, User.Identity.IsAuthenticated ? User.Identity.Name : "");
                 return Json("Yes");
             }
             catch (Exception ex)
@@ -94,64 +43,32 @@ namespace Racoonogram.Controllers
             }
         }
 
-
         public ActionResult AuthorProfile(string id="")
         {
             AuthorAndAllImages UserAndImages = new AuthorAndAllImages();
-            UserAndImages.User = db.Users.Select(u => u).Where(u => u.Id == id).FirstOrDefault();
-            IEnumerable<Image> allUserImages = db.Images.Where(i => i.ApplicationUserId == UserAndImages.User.Id).OrderByDescending(i => i.ImageId);
+            UserAndImages.User = new UserService().GetUser(id);
+            IEnumerable<Image> allUserImages = new ImageService().GetImagesByUserId(UserAndImages.User.Id);
             foreach (Image i in allUserImages)
             {
                 i.Url = i.ImageId + "_sm.jpg";
             }
             UserAndImages.ImagesUser = allUserImages.ToList();
-            ViewBag.Logo = RenderUserLogo(UserAndImages.User.Id);
-            ViewBag.photos = db.Images.Where(i => i.ApplicationUserId == id).Select(i => i.ImageId).Count();
-            ViewBag.likes = (from l in db.Likes
-                             join i in db.Images on l.ImageId equals i.ImageId
-                             where i.ApplicationUserId == id
-                             select l.LikeId).Count();
-            ViewBag.deal = db.Orders.Where(o => o.ApplicationUserId == id).Select(o => o.OrderId).Count();
+            ViewBag.Logo = new ImageHandler().RenderUserLogo(UserAndImages.User.Id);
+            ViewBag.photos = new ImageService().GetImagesByUserId(UserAndImages.User.Id).Count();
+            ViewBag.likes = new ImageService().GetLikesCount(id);
+            ViewBag.deal = new UserService().GetOrdersCount(id);
             return View(UserAndImages);
-        }
-
-        private string RenderUserLogo(string UserId, string size="normal")
-        {
-            string end;
-            if (size == "normal") end  = ".jpg";
-            else end = "_small.jpg";
-
-                string exPath = Server.MapPath("~/Content/User-logo/") + UserId + end;
-            if (System.IO.File.Exists(exPath))
-            {
-                return "/Content/User-logo/" + UserId + end;
-            }
-            else
-            {
-                Random r = new Random();
-                return "/Content/User-logo/reserve-logo(" + r.Next(1,4) + ").jpg";
-            }
         }
 
         public ActionResult AllImUser()
         {
             return PartialView();
         }
+
         public ActionResult UserSearch(int page = 1)
         {
             int pageSize = 24;
-            IEnumerable<UserSearch> users = db.Users.Select(q => new UserSearch
-            {
-                Id = q.Id,
-                UserName = q.UserName,
-                Site = q.Site,
-                CountPubl = q.Images.Select(i => i.ImageId).Count(),
-                CountFollow = (from l in db.Likes
-                               join i in db.Images on l.ImageId equals i.ImageId
-                               where i.ApplicationUserId == q.Id
-                               select l.LikeId).Count()
-            }).Where(q=>q.CountPubl>0).OrderByDescending(i => i.UserName).Take(pageSize).ToList();
-
+            IEnumerable<UserSearch> users = new UserService().GetUsersSearch(pageSize);
 
             if (users.Count() <= 0)
             {
@@ -162,77 +79,25 @@ namespace Racoonogram.Controllers
                     message = "Авторы не найдены :( Зарегистрируйтесь и станьте первым! :D"
                 });
             }
-            foreach(UserSearch user in users)
-            {
-                user.UrlLogo = RenderUserLogo(user.Id,"small");
-                user.SiteShort = RenderSiteShort(user.Site);
-            }
-            PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems = db.Users.Select(i => i.UserName).Count() };
-            PaginationClassForUsers pagclass = new PaginationClassForUsers { PageInfoPag = pageInfo, userSearches = users };
+            ViewBag.BackImage = new ImageHandler().GenereteRandomBack();
 
-            GenereteRandomBack();
-            return View(pagclass);
-        }
-
-        public static string RenderSiteShort(string Site)
-        {
-            if (Site != null)
+            foreach (UserSearch user in users)
             {
-                if (Site.Length <= 30)
-                    return Site;
-                else return Site.Substring(0, 30) + "...";
+                user.UrlLogo = new ImageHandler().RenderUserLogo(user.Id,"small");
+                user.SiteShort = new ImageHandler().RenderSiteShort(user.Site);
             }
-            return null;
+            PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems = new UserService().GetUsersCount() };
+
+            return View(new PaginationClassForUsers { PageInfoPag = pageInfo, userSearches = users });
         }
 
         [HttpPost]
         public ActionResult UserSearchPartial(string searchstring, string order, int page = 0)
         {
-            IEnumerable<UserSearch> users;
             int pageSize = 16;
-            switch (order)
-            {
-                case "follow":
-                    users = db.Users.Select(q => new UserSearch
-                    {
-                        Id = q.Id,
-                        UserName = q.UserName,
-                        Site = q.Site,
-                        CountPubl = q.Images.Select(i=>i.ImageId).Count(),
-                        CountFollow = (from l in db.Likes
-                                       join i in db.Images on l.ImageId equals i.ImageId
-                                       where i.ApplicationUserId == q.Id
-                                       select l.LikeId).Count()
-                    }).OrderByDescending(i => i.CountFollow).Where(i=>i.UserName.Contains(searchstring)).Take(pageSize).ToList();
-                    break;
-                case "images":
-                    users = db.Users.Select(q => new UserSearch
-                    {
-                        Id = q.Id,
-                        UserName = q.UserName,
-                        Site = q.Site,
-                        CountPubl = q.Images.Select(i => i.ImageId).Count(),
-                        CountFollow = (from l in db.Likes
-                                       join i in db.Images on l.ImageId equals i.ImageId
-                                       where i.ApplicationUserId == q.Id
-                                       select l.LikeId).Count()
-                    }).OrderByDescending(i => i.CountPubl).Where(i => i.UserName.Contains(searchstring)).Take(pageSize).ToList();
-                    break;
-                default:
-                    users = db.Users.Select(q => new UserSearch
-                    {
-                        Id = q.Id,
-                        UserName = q.UserName,
-                        Site = q.Site,
-                        CountPubl = q.Images.Select(i => i.ImageId).Count(),
-                        CountFollow = (from l in db.Likes
-                                       join i in db.Images on l.ImageId equals i.ImageId
-                                       where i.ApplicationUserId == q.Id
-                                       select l.LikeId).Count()
-                    }).OrderBy(i => i.UserName).Where(i => i.UserName.Contains(searchstring)).Take(pageSize).ToList();
-                    break;
 
-            }
+            IEnumerable<UserSearch> users = new UserService().GetUsersSearch(searchstring, order, page, pageSize);
+            
             if (users.Count() <= 0)
             {
                 return RedirectToRoute(new
@@ -244,20 +109,17 @@ namespace Racoonogram.Controllers
             }
             foreach(UserSearch user in users)
             {
-                user.UrlLogo = RenderUserLogo(user.Id, "small");
-                user.SiteShort = RenderSiteShort(user.Site);
+                user.UrlLogo = new ImageHandler().RenderUserLogo(user.Id, "small");
+                user.SiteShort = new ImageHandler().RenderSiteShort(user.Site);
             }
-            PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems = db.Users.Where(i=>i.UserName.Contains(searchstring)).Select(i => i.UserName).Count() };
-            PaginationClassForUsers pagclass = new PaginationClassForUsers { PageInfoPag = pageInfo, userSearches = users};
+            PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems = new UserService().GetUsersCount(searchstring) };
 
-            return PartialView(pagclass);
+            return PartialView(new PaginationClassForUsers { PageInfoPag = pageInfo, userSearches = users });
         }
-
-
 
         public ActionResult PhotoGalery(string category = "", string querys = "", int page = 1)
         {
-            GenereteRandomBack();
+            ViewBag.BackImage = new ImageHandler().GenereteRandomBack();
             ViewBag.MinHeight = "min-height: 200px;padding: 2% 10%;";
             if (category != "")
             {
@@ -272,27 +134,22 @@ namespace Racoonogram.Controllers
             }
             return View();
         }
+
         public ActionResult GetCategories()
         {
-            IEnumerable<GetCategories> allCategory = db.Images.GroupBy(i => i.Category).Select(j => new GetCategories
-            {
-                CategoryName = j.Key,
-                Url = db.Images.Where(im => im.Category == j.Key).Select(im => im.ImageId).FirstOrDefault() + "_sm.jpg"
-            }).Take(30).ToList();
-            return PartialView(allCategory);
+            return PartialView(new ImageService().GetCategories().Take(30).ToList());
         }
-
 
         [HttpGet]
         public ActionResult ImagePreview(int id)
         {
             try
             {
-                Image image = db.Images.Select(i => i).Where(i => i.ImageId == id).FirstOrDefault();
+                Image image = new ImageService().GetImage(id);
                 image.Url = image.ImageId + "_sm.jpg";
-                string[] keywords = image.KeyWords.Split(' ');
-                ViewBag.keywords = keywords;
-                ViewBag.authorLogo = RenderUserLogo(image.ApplicationUserId, "small");
+                ViewBag.keywords = image.KeyWords.Split(' ');
+                ViewBag.keywords = image.KeyWords.Split(' ');
+                ViewBag.authorLogo = new ImageHandler().RenderUserLogo(image.ApplicationUserId, "small");
                 if (image.Price > 0)
                     ViewBag.NameController = "ImageBuy";
                 else ViewBag.NameController = "ImageDownload";
@@ -303,18 +160,14 @@ namespace Racoonogram.Controllers
 
                 if (User.Identity.IsAuthenticated)
                 {
-                    string s = User.Identity.Name;
-                    var idAndEmail = db.Users.Where(i => i.UserName == s).Select(i => new
-                    {
-                        email = i.Email,
-                        id = i.Id
-                    }).FirstOrDefault();
-                    ViewBag.Email = idAndEmail.email;
-                    if (image.Price > 0)
-                    {
-                        ViewBag.hasPlan = db.PlanBuyings.Where(p => p.Id_user == idAndEmail.id && (p.ImageBalance > 0 || p.MoneyBalance > image.Price)).Select(p => p.Id).Count();
-                    }
-                    else ViewBag.hasPlan = 1;
+                    UserIdAndEmail idAndEmail = new UserService().GetUserIdAndEmail(User.Identity.Name);
+                    ViewBag.Email = idAndEmail.Email;
+                    //if (image.Price > 0)
+                    //{
+                    //    ViewBag.hasPlan = new PlanService().GetPlanRest(idAndEmail.Id, image.Price);
+                    //}
+                    //else 
+                    ViewBag.hasPlan = 1;
                 }
                 return View(image);
             }
@@ -329,7 +182,6 @@ namespace Racoonogram.Controllers
             }
         }
         
-
         [HttpPost]
         public JsonResult ImageDownload(string email = "")
         {
@@ -339,7 +191,7 @@ namespace Racoonogram.Controllers
         [HttpPost]
         public ActionResult LikeThisImage(string imneed, int idi)
         {
-            IEnumerable<Image> images = db.Images.Select(i => i).Where(i => i.Category.Contains(imneed)).OrderByDescending(i => i.ImageId).Except(db.Images.Select(i=>i).Where(i=>i.ImageId==idi)).Take(12).ToList();
+            IEnumerable<Image> images = new ImageService().GetSimilarImages(imneed, idi).Take(12).ToList();
             foreach (Image i in images)
             {
                 i.Url = "/Content/Content-image/" + i.ImageId + "_sm.jpg";
@@ -348,48 +200,10 @@ namespace Racoonogram.Controllers
             return PartialView(images);
         }
 
-
         [HttpPost]
-        public ActionResult ImageSearch(string keywords, int page = 1, string iscategory = "", string Colors = null, /*string IsBlack = "false",*/ string Orient = null, string OrderBy="", int Count=12)
+        public ActionResult ImageSearch(string keywords, int page = 1, string iscategory = "", string Colors = null, string Orient = null, string OrderBy="", int pageSize = 12)
         {
-            IEnumerable<Image> allimages;
-            int pageSize = Count;
-            if (iscategory == "category")
-            {
-                if (Colors == "IsBlack")
-                {
-                    allimages = db.Images.Where(i => i.Category.Contains(keywords)  && i.Orient.Contains(Orient)&&i.IsBlack==true).OrderByDescending(i => i.ImageId).ToList();
-                }
-                else
-                allimages = db.Images.Where(i=>i.Category.Contains(keywords) && i.Colors.Contains(Colors) && i.Orient.Contains(Orient)).OrderByDescending(i => i.ImageId).ToList();
-            }
-            else
-            {
-                if (Colors == "IsBlack")
-                {
-                    allimages = db.Images.Where(i => (i.KeyWords.Contains(keywords)
-                                                || i.Category.Contains(keywords)) && i.Orient.Contains(Orient)&&i.IsBlack==true).OrderByDescending(i => i.ImageId).ToList();
-                }
-                else
-                    allimages = db.Images.Where(i => (i.KeyWords.Contains(keywords)
-                            || i.Category.Contains(keywords))&&i.Colors.Contains(Colors)&&i.Orient.Contains(Orient)).OrderByDescending(i => i.ImageId).ToList();
-            }
-            IEnumerable<Image> allImagesForPag;
-            switch (OrderBy)
-            {
-                case "o2":
-                    allImagesForPag = allimages.OrderBy(i => i.ImageId).Skip((page - 1) * pageSize).Take(pageSize);
-                    break;
-                case "o3":
-                    allImagesForPag = allimages.OrderBy(i => i.Price).Skip((page - 1) * pageSize).Take(pageSize);
-                    break;
-                case "o4":
-                    allImagesForPag = allimages.OrderByDescending(i => i.Price).Skip((page - 1) * pageSize).Take(pageSize);
-                    break;
-                default:
-                    allImagesForPag = allimages.OrderByDescending(i => i.ImageId).Skip((page - 1) * pageSize).Take(pageSize);
-                    break;
-            }
+            IEnumerable<Image> allimages = new ImageService().GetSearchedImages(keywords, page, iscategory, Colors, Orient).ToList();
 
             if (allimages.Count() <= 0)
             {
@@ -401,22 +215,39 @@ namespace Racoonogram.Controllers
                 });
             }
 
+            switch (OrderBy)
+            {
+                case "o2":
+                    allimages = allimages.OrderBy(i => i.ImageId).Skip((page - 1) * pageSize).Take(pageSize);
+                    break;
+                case "o3":
+                    allimages = allimages.OrderBy(i => i.Price).Skip((page - 1) * pageSize).Take(pageSize);
+                    break;
+                case "o4":
+                    allimages = allimages.OrderByDescending(i => i.Price).Skip((page - 1) * pageSize).Take(pageSize);
+                    break;
+                default:
+                    allimages = allimages.OrderByDescending(i => i.ImageId).Skip((page - 1) * pageSize).Take(pageSize);
+                    break;
+            }
+
             if (keywords.Length > 2)
             {
-                QueryHistory query = new QueryHistory();
-                query.QueryDate = DateTime.Now;
-                query.QuerySting = keywords;
-                db.QueryHistories.Add(query);
-                db.SaveChanges();
+                new UserService().QueryHistoryAdd(new QueryHistory()
+                {
+                    QueryDate = DateTime.Now,
+                    QuerySting = keywords
+                });
             }
-            foreach (Image i in allImagesForPag)
+
+            foreach (Image i in allimages)
             {
                 i.Url = i.ImageId + "_sm.jpg";
             }
-            PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems = allimages.Count() };
-            PaginationClass pagclass = new PaginationClass { PageInfoPag = pageInfo, ImagesPag = allImagesForPag };
 
-            return PartialView(pagclass);
+            PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems = allimages.Count() };
+
+            return PartialView(new PaginationClass { PageInfoPag = pageInfo, ImagesPag = allimages });
         }
 
         public ActionResult NotFound(string message)
@@ -428,38 +259,39 @@ namespace Racoonogram.Controllers
         public ActionResult About()
         {
             ViewBag.Message = "Your application description page";
-
             return View();
         }
 
         public ActionResult Contact()
         {
             ViewBag.Message = "Your contact page";
-
             return View();
         }
 
         public ActionResult Questions()
         {
             ViewBag.Message = "Questions";
-
             return View();
         }
+
         public ActionResult Agreement()
         {
             ViewBag.Message = "Agreement";
             return View();
         }
+
         public ActionResult License()
         {
             ViewBag.Message = "License";
             return View();
         }
+
         public ActionResult BuyPlan()
         {
             ViewBag.Message = "Приобрести план";
             return View();
         }
+
         [HttpGet]
         public ActionResult BuyPlanForm(string radio_val = "s1")
         {
@@ -513,46 +345,11 @@ namespace Racoonogram.Controllers
             }
             else
             {
-                var userId = db.Users.Where(u => u.UserName == login).Select(u => u.Id).FirstOrDefault();
+                var userId = new UserService().GetUserID(login);
                 if (userId !=null)
                 {
                     /*платежная система*/
-                    PlanBuying buying;
-                    if (planId.Contains('s'))
-                    {
-                        buying = db.PlanBuyings.Where(pb => pb.Id_plan.Contains("s") && pb.Id_user == userId).Select(p => p).FirstOrDefault();
-                        if (buying == null)
-                        {
-                            buying = new PlanBuying
-                            {
-                                Id_plan = planId,
-                                Id_user = userId,
-                                MoneyBalance = 0
-                            };
-                        }
-                        else
-                        {
-                            db.PlanBuyings.Remove(buying);
-                            db.SaveChanges();
-
-                        }
-                        buying.MoneyBalance += db.Plans.Where(p => p.Id == planId).Select(p => p.PlanPrice).FirstOrDefault();
-                        buying.BuyingDate = DateTime.Now;
-                        buying.isHide = 0;
-                    }
-                    else
-                    {
-                        buying = new PlanBuying
-                        {
-                            Id_plan = planId,
-                            Id_user = userId,
-                            BuyingDate = DateTime.Now,
-                            isHide = 0
-                        };
-                        buying.ImageBalance = db.Plans.Where(p => p.Id == planId).Select(p => p.ImgCount).FirstOrDefault();
-                    }
-                    db.PlanBuyings.Add(buying);
-                    db.SaveChanges();
+                    new UserHandlers().BuyPlan(userId, planId);
                 }
                 else
                 {
@@ -562,13 +359,14 @@ namespace Racoonogram.Controllers
                 return RedirectToAction("Index","Manage");
             }
         }
+
         public ActionResult GetImg(string Id)
         {
             ViewBag.Message = "Приобрести план";
-            var j = db.ImgDownloads.Where(imd => imd.Id == Id).Select(imd => imd).FirstOrDefault();
+            var plan = new ImageService().GetImageDownload(Id);
             try
             {
-                if (j.DateLast > DateTime.Now)
+                if (plan.DateLast > DateTime.Now)
                 {
                     ViewBag.ID = Id + ".jpg";
                     return View();

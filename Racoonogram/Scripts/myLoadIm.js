@@ -15,7 +15,6 @@
         console.log(document.getElementById("logo_file_ContentType").val);
         console.log(document.getElementById("logo_file_ContentLength").val);
         console.log(document.getElementById("logo_file_FileName").val);
-        console.log(reader);
     // Closure to capture the file information.
     reader.onload = (function(theFile) {
         return function(e) {

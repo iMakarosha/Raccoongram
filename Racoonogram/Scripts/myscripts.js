@@ -8,7 +8,6 @@
     $.fn.selectbox = function () {
         $('.dropdown-menu.user-serach li.selectTypeLi').click(function () {
             $("#selectType").html($(this).html() + "<span class='caret'></span>");
-            console.log($(this).html());
         });
     };
     $.fn.selectbox = function () {

@@ -107,9 +107,6 @@
 
                     },
                     error: function (xhr, status, p3) {
-                        console.log(xhr);
-                        console.log(status);
-                        console.log(p3);
                         alert("Ошибка!");
                     }
                 });
@@ -131,7 +128,6 @@
         Store.files.splice(0, Store.files.length);
         var file = evt.target.files; // FileList object
         if (file.length != 0) {
-            //console.log(file);
             var f = file[0];
             addFiles(f);
             // Only process image files.

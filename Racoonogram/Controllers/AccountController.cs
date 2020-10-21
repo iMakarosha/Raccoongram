@@ -9,9 +9,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Racoonogram.Models;
-
-using System.Net;
-using System.Net.Mail;
+using Racoonogram.Handlers;
 
 namespace Racoonogram.Controllers
 {
@@ -30,9 +28,6 @@ namespace Racoonogram.Controllers
             UserManager = userManager;
             SignInManager = signInManager;
         }
-
-        
-
 
         public ApplicationSignInManager SignInManager
         {
@@ -217,37 +212,9 @@ namespace Racoonogram.Controllers
                 }
                 else
                 {
-                    string code = "";
-                    Random r = new Random();
-                    char[] charArray = new char[72];
-                    int z = 0;
-                    for(char p = 'a'; p<= 'z'; p++)
-                    { charArray[z] = p; z++; }
-                    for (char p = '0'; p <= '9'; p++)
-                    { charArray[z] = p; z++; }
-                    for (char p = 'A'; p <= 'Z'; p++)
-                    { charArray[z] = p; z++; }
-                    for (char p = '0'; p <= '9'; p++)
-                    { charArray[z] = p; z++; }
-                    for (int p = 0; p < 30; p++)
-                    {
-                        code += charArray[r.Next(0, 71)];
-                    }
-                    SmtpClient smtpClient = new SmtpClient("smtp.mail.ru", 25);
-                    smtpClient.Credentials = new NetworkCredential("rosavtodorcza@mail.ru", "tararaKota1235");
-
-                    MailAddress to = new MailAddress(model.Email);
-                    MailAddress from = new MailAddress("rosavtodorcza@mail.ru", "Фотобанк Raccoonogram");
-                    MailMessage message = new MailMessage(from, to);
-                    message.Subject = "Восстановление пароля - фотобанк Racconogram";
-                    message.IsBodyHtml = true;
-                    message.Body = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'></head><body><h2>Восстановление пароля - фотобанк Raccoonogram</h2><p>Ваш логин: " + user.UserName + "</p><p>Ключ: "+ code +
-                        "</p><p>В целях безопасности Ваших данных мы не храним Ваш пароль. Вам необходимо придумать новый, после чего доступ к аккаунту будет восстановлен.</p><br><hr/><p>Служба поддержки сервиса Raccoonogram</p><p>Возникли вопросы? Напишите нам: Raccoonogram.help@gmail.com</p><p style='text-align:right'>"+DateTime.Now+"</p></body></html>";
-                    smtpClient.EnableSsl = true;
                     try
                     {
-                        smtpClient.Send(message);
-                        ViewBag.KeyString = code;
+                        ViewBag.KeyString = new AccountHandler().SendForgotPasswordMail(model.Email, user.UserName);
                         ViewBag.Email = model.Email;
                         return View("ForgotPasswordConfirmation");
                     }
@@ -258,13 +225,6 @@ namespace Racoonogram.Controllers
                     }
 
                 }
-
-                // Дополнительные сведения о включении подтверждения учетной записи и сброса пароля см. на странице https://go.microsoft.com/fwlink/?LinkID=320771.
-                // Отправка сообщения электронной почты с этой ссылкой
-                // string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                // var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
-                // await UserManager.SendEmailAsync(user.Id, "Сброс пароля", "Сбросьте ваш пароль, щелкнув <a href=\"" + callbackUrl + "\">здесь</a>");
-                // return RedirectToAction("ForgotPasswordConfirmation", "Account");
             }
 
             // Появление этого сообщения означает наличие ошибки; повторное отображение формы
@@ -309,7 +269,6 @@ namespace Racoonogram.Controllers
                 ViewBag.Email = email;
                 return View();
             }
-            
         }
               
         //
